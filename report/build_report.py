@@ -15,7 +15,7 @@ OUT_PDF = os.path.join(ROOT, "ErrorBuddy_Final_Report.pdf")
 REPO = "https://github.com/Vardanp1/Compiler-Design-Project"
 PAGES = "https://vardanp1.github.io/Compiler-Design-Project/"
 PLAY = PAGES + "playground.html"
-AUTHOR = "Vardan Pandya"
+AUTHORS = [("Vardan Pandya", "24BCE2608"), ("Kunal Sharma", "24BCE2641")]
 DATE = datetime.date.today().strftime("%d %B %Y")
 
 esc = html.escape
@@ -123,7 +123,7 @@ a {{ color: #2f5fd0; text-decoration: none; }}
     <h1>Error<span>Buddy</span></h1>
     <p class="tag">A beginner-friendly compiler that explains its own errors: the right line, plain words, one concrete fix.</p>
     <table>
-      <tr><td>Author</td><td>{AUTHOR}</td></tr>
+      <tr><td>Submitted by</td><td>{"<br>".join(f"{n} &nbsp;·&nbsp; {r}" for n, r in AUTHORS)}</td></tr>
       <tr><td>Date</td><td>{DATE}</td></tr>
       <tr><td>Implementation</td><td>C++17, standard library only · {cpp_lines} lines in {len(SRC_FILES)} files</td></tr>
       <tr><td>GitHub repository</td><td><a href="{REPO}">{REPO}</a></td></tr>
