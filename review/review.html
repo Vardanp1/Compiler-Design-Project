@@ -1,0 +1,578 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ErrorBuddy Review</title><style>@page { size: 1280px 720px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: "Liberation Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #111; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+code, pre, .tag, .eyebrow, .lbl, .nav, .ready, .foot, .brand span, .cat, .io, .iorow span, em { font-family: "DejaVu Sans Mono", "Liberation Mono", monospace; }
+.slide { width: 1280px; height: 720px; position: relative; overflow: hidden; background: #fff; break-after: page; display: flex; flex-direction: column; }
+.slide.dark { background: #0c0c0c; color: #fff; padding: 60px 72px; }
+.body { flex: 1; padding: 30px 54px 0; position: relative; }
+.dark .body { padding: 0; }
+
+/* chrome */
+.top { height: 52px; border-bottom: 1px solid #cfcfcf; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.brand { display: flex; align-items: center; gap: 22px; }
+.brand b { font-size: 20px; letter-spacing: -1px; }
+.brand span { font-size: 11px; letter-spacing: 2.4px; color: #333; }
+.brand .sep { color: #aaa; letter-spacing: 0; }
+.nav { display: flex; gap: 8px; }
+.nav span { border: 1px solid #c9c9c9; border-radius: 3px; padding: 7px 14px; font-size: 10px; letter-spacing: 1.6px; color: #333; }
+.nav span.on { background: #0c0c0c; border-color: #0c0c0c; color: #fff; font-weight: bold; }
+.ready { border: 1px solid #c9c9c9; border-radius: 3px; padding: 8px 18px; font-size: 10px; letter-spacing: 1.4px; font-weight: bold; }
+.foot { height: 36px; border-top: 1px solid #d8d8d8; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; font-size: 10px; letter-spacing: 1.8px; color: #444; }
+
+/* type */
+.eyebrow { font-size: 11px; letter-spacing: 2.6px; font-weight: bold; color: #333; margin-bottom: 4px; }
+.eyebrow.dim, .dark .eyebrow { color: #9a9a9a; }
+h1 { font-size: 36px; margin: 0 0 6px; letter-spacing: -.5px; line-height: 1.12; }
+h1.huge { font-size: 38px; margin: 18px 0 26px; }
+h1 .ul { text-decoration: underline; text-underline-offset: 6px; }
+h2.big { font-size: 38px; line-height: 1.22; margin: 22px 0 12px; }
+h3 { font-size: 19px; margin: 0 0 14px; }
+h4 { font-size: 16px; margin: 0 0 4px; }
+p { margin: 0 0 8px; line-height: 1.45; font-size: 15px; }
+.sub { font-size: 17px; color: #555; margin-bottom: 20px; }
+.note { font-size: 14px; color: #444; margin-top: 12px; }
+.lbl { font-size: 10px; letter-spacing: 2px; color: #777; margin-bottom: 8px; font-weight: bold; }
+.dark .lbl { color: #8d8d8d; }
+code { font-size: .92em; }
+.tag { display: inline-block; background: #0c0c0c; color: #fff; font-size: 11px; font-weight: bold; letter-spacing: 1.2px; padding: 8px 12px; border-radius: 3px; border: 1px solid #0c0c0c; margin-right: 8px; }
+.tag.light { background: #fff; color: #111; }
+
+/* code boxes */
+.code { display: flex; border: 1px solid #c8c8c8; border-radius: 4px; background: #fff; font-size: 14px; line-height: 23px; overflow: hidden; }
+.code .gut { background: #ececec; color: #999; padding: 10px 0; min-width: 40px; text-align: center; }
+.code .gut i { display: block; font-style: normal; font-size: 12px; }
+.code pre { margin: 0; padding: 10px 14px; white-space: pre; font-size: 14px; line-height: 23px; }
+pre.code { padding: 12px 16px; margin: 0; display: block; white-space: pre; }
+.code.bare { border: 0; background: transparent; }
+.code.bare .gut { background: transparent; color: #666; min-width: 28px; }
+.dark pre.code.bare, .dark .code.bare pre { color: #fff; font-size: 17px; line-height: 27px; padding: 0; }
+.code.light .gut { color: #aaa; }
+pre.term { background: #0c0c0c; color: #f2f2f2; padding: 16px 18px; border-radius: 4px; font-size: 13px; line-height: 1.55; margin: 0; white-space: pre-wrap; }
+pre.term.small { font-size: 12.5px; }
+pre.mini { font-size: 12px; background: #f3f3f3; border: 1px solid #ddd; padding: 8px 10px; margin: 8px 0 0; }
+
+/* title slide */
+.title-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; height: 100%; }
+.mark { font-size: 108px; font-weight: bold; line-height: .9; letter-spacing: -5px; margin-top: 22px; }
+.mark span { letter-spacing: 0; }
+.bar { width: 210px; height: 8px; background: #fff; margin-top: 22px; }
+.dimtext { color: #bdbdbd; font-size: 17px; }
+.chips { margin-top: 20px; }
+.panel-dark { background: #161616; border: 1px solid #333; border-radius: 6px; padding: 22px 26px; margin-top: 20px; }
+.alert { border: 1px solid #555; border-radius: 4px; margin-top: 18px; font-family: "DejaVu Sans Mono", monospace; font-size: 13.5px; line-height: 1.5; }
+.alert-h { display: flex; border-bottom: 1px solid #555; font-size: 11px; letter-spacing: 1.4px; }
+.alert-h b { background: #fff; color: #0c0c0c; padding: 6px 12px; }
+.alert-h span { padding: 6px 12px; font-weight: bold; }
+.alert > div:last-child { padding: 10px 14px; }
+.team { border: 2px solid #fff; border-radius: 6px; padding: 20px 26px; margin-top: 22px; }
+.team hr { border: 0; border-top: 1px solid #333; margin: 14px 0; }
+.who { font-size: 25px; font-weight: bold; }
+.reg { font-family: "DejaVu Sans Mono", monospace; color: #bbb; font-size: 15px; margin-top: 4px; letter-spacing: 1px; }
+
+/* problem statement */
+.dark .quote { border: 1px solid #333; border-radius: 6px; padding: 24px 28px; font-size: 16px; line-height: 1.6; color: #d6d6d6; }
+.checks { display: flex; gap: 18px; margin: 26px 0; }
+.checks div { flex: 1; border: 1px solid #fff; border-radius: 4px; padding: 11px 14px; font-size: 14px; font-weight: bold; }
+.rq { background: #fff; color: #111; border-radius: 6px; padding: 18px 26px; font-size: 19px; font-weight: bold; line-height: 1.4; }
+.rq.c { text-align: center; font-weight: normal; margin: 30px 0 0; }
+
+/* cards */
+.cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.card { border: 1px solid #c8c8c8; border-radius: 4px; padding: 20px 22px; background: #fff; }
+.card.topline { border-top: 6px solid #0c0c0c; }
+.card .tag { margin-top: 6px; }
+.banner { background: #0c0c0c; color: #fff; border-radius: 4px; padding: 18px 32px; margin-top: 22px; }
+.banner b { display: block; font-size: 25px; margin-bottom: 4px; }
+.banner span { font-size: 15px; color: #ddd; }
+.banner.sm { padding: 13px 26px; margin-top: 18px; }
+.banner.sm b { font-size: 18px; }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.cols2.w { grid-template-columns: 1.05fr 1fr; }
+.steps { display: flex; gap: 12px; margin: 8px 0 22px; }
+.steps div { flex: 1; border: 1px solid #0c0c0c; border-radius: 4px; padding: 12px 14px; font-weight: bold; font-size: 16px; }
+.steps b { display: inline-block; width: 26px; height: 26px; background: #0c0c0c; color: #fff; text-align: center; line-height: 26px; border-radius: 3px; margin-right: 10px; }
+.steps small { display: block; font-weight: normal; color: #666; font-size: 13px; margin-top: 6px; }
+.steps .q { border-style: dashed; color: #555; }
+.steps .q b { background: #fff; color: #0c0c0c; border: 1px dashed #0c0c0c; }
+.blackbox { background: #0c0c0c; color: #fff; border-radius: 4px; padding: 26px 28px; }
+.blackbox .lbl { color: #999; }
+.blackbox.sm { padding: 18px 22px; margin-top: 18px; font-size: 15px; line-height: 1.5; }
+.thesis { font-size: 26px; font-weight: bold; line-height: 1.3; margin-bottom: 16px; }
+.blackbox p { color: #ccc; }
+.blackbox .chips { margin-top: 14px; }
+.numbered > div { display: flex; gap: 16px; border-bottom: 1px solid #ddd; padding: 9px 0; }
+.numbered b { width: 34px; height: 34px; flex: none; background: #0c0c0c; color: #fff; text-align: center; line-height: 34px; border-radius: 3px; font-size: 15px; }
+.numbered p { font-size: 14px; color: #555; margin: 0; }
+.grid2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; }
+.tile { display: flex; gap: 22px; border: 1px solid #c8c8c8; border-radius: 4px; padding: 26px 26px; min-height: 160px; }
+.tile span { font-family: "DejaVu Sans Mono", monospace; font-size: 32px; color: #aaa; }
+.tile h4 { font-size: 20px; margin-bottom: 8px; }
+.lang { grid-template-columns: 1fr 1.05fr; }
+.blackstrip { background: #0c0c0c; color: #fff; margin-top: 14px; padding: 13px 18px; border-radius: 4px; font-size: 15px; }
+.blackstrip span { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; letter-spacing: 2px; color: #999; margin-right: 18px; }
+table { border-collapse: collapse; width: 100%; }
+.kv td { border-bottom: 1px solid #ddd; padding: 11px 6px; font-size: 15px; vertical-align: top; }
+.kv td:first-child { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; letter-spacing: 1.6px; color: #666; width: 150px; padding-top: 14px; }
+
+/* architecture */
+.arch { display: flex; align-items: stretch; gap: 12px; margin-top: 6px; }
+.arch .ph { border: 1.5px solid #0c0c0c; border-radius: 4px; padding: 16px; flex: 1; }
+.arch .ph > b, .row3 b, .errbar > b, .pn b, .kind > b, .flow b, .five b { display: inline-block; width: 30px; height: 30px; background: #0c0c0c; color: #fff; text-align: center; line-height: 30px; border-radius: 3px; margin-bottom: 8px; font-size: 15px; }
+.arch .ph code { font-size: 12px; color: #444; }
+.arch .ph p { font-size: 13.5px; color: #555; margin-top: 8px; }
+.arch .group { flex: 2.2; border-width: 2.5px; }
+.glbl { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; letter-spacing: 1.6px; font-weight: bold; margin-bottom: 10px; }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.row3 > div { border: 1px solid #bbb; border-radius: 4px; padding: 12px; }
+.row3 p { font-size: 13px; color: #555; }
+.arrow { align-self: center; font-size: 26px; }
+.io { font-size: 11px; color: #333; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; }
+.errbar { display: flex; gap: 18px; border: 1.5px dashed #0c0c0c; border-radius: 4px; padding: 16px 20px; margin-top: 22px; }
+.errbar p { font-size: 14px; color: #444; margin: 0; }
+.legend { display: flex; gap: 30px; margin-top: 16px; font-size: 13px; color: #555; }
+.pc ul, .x { padding-left: 18px; margin: 8px 0 12px; }
+.pc li, .x li { font-size: 14px; line-height: 1.5; margin-bottom: 3px; }
+.pn { display: flex; gap: 12px; align-items: center; }
+.pn h3 { margin: 0 0 8px; }
+.file { font-size: 12px; color: #555; }
+.iorow { border-top: 1px solid #ddd; padding: 6px 0; font-size: 13px; }
+.iorow span { display: inline-block; width: 46px; font-size: 10px; letter-spacing: 1.5px; color: #888; }
+.layers th, .rules th, .vs th { text-align: left; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; letter-spacing: 1.6px; color: #fff; background: #0c0c0c; padding: 9px 10px; }
+.layers td, .rules td, .vs td { border-bottom: 1px solid #ddd; padding: 9px 10px; font-size: 14px; vertical-align: top; }
+.shared > div { border-bottom: 1px solid #ddd; padding: 8px 0; }
+.shared p { font-size: 14px; color: #555; margin: 0; }
+.fields > div { border: 1px solid #c8c8c8; border-radius: 4px; padding: 12px 16px; margin-bottom: 10px; }
+.fields span { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; letter-spacing: 1.8px; color: #888; font-weight: bold; }
+.fields b { display: block; font-size: 17px; margin: 3px 0; }
+.fields p { font-size: 13.5px; color: #555; margin: 0; }
+.flow { display: flex; gap: 10px; margin-bottom: 16px; }
+.flow > div { flex: 1; border: 1px solid #c8c8c8; border-radius: 4px; padding: 10px 12px; }
+.flow p { font-size: 13px; color: #555; margin: 0; }
+.rules tr.hl td { background: #0c0c0c; color: #fff; font-weight: bold; }
+.kinds .kind { display: grid; grid-template-columns: 44px 250px 1fr 150px; gap: 14px; align-items: center; border: 1px solid #c8c8c8; border-radius: 4px; padding: 9px 14px; margin-bottom: 9px; }
+.kind > b { margin: 0; }
+.kh h4 { font-family: "DejaVu Sans Mono", monospace; font-size: 13px; letter-spacing: 1.6px; }
+.kh p { font-size: 13px; color: #555; margin: 0; }
+.ids { display: flex; flex-wrap: wrap; gap: 6px; }
+.ids span { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; border: 1px solid #0c0c0c; border-radius: 3px; padding: 3px 7px; }
+.kind em { font-style: normal; font-size: 11px; letter-spacing: 1px; color: #444; text-align: right; }
+.cards3.t .card { padding: 16px 18px; }
+.vs td:first-child { width: 290px; }
+.vs td { font-size: 13.5px; padding: 8px 10px; }
+.vs td:nth-child(2) { color: #555; font-family: "DejaVu Sans Mono", monospace; font-size: 12px; }
+.bars { padding-top: 20px; }
+.brow { margin-bottom: 26px; }
+.brow span { font-size: 15px; display: block; margin-bottom: 6px; }
+.track { background: #eee; border-radius: 3px; height: 40px; }
+.fill { background: #9a9a9a; height: 40px; border-radius: 3px; color: #fff; font-weight: bold; font-family: "DejaVu Sans Mono", monospace; font-size: 15px; line-height: 40px; text-align: right; padding-right: 14px; }
+.fill.on { background: #0c0c0c; }
+.stats > div { border: 1px solid #c8c8c8; border-radius: 4px; padding: 18px 22px; margin-bottom: 14px; display: flex; gap: 22px; align-items: center; }
+.stats b { font-family: "DejaVu Sans Mono", monospace; font-size: 40px; min-width: 150px; }
+.stats p { margin: 0; color: #444; }
+.stats.one > div:first-child b { font-size: 48px; }
+.stats .card { display: block; }
+.pipe4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.pipe4 .card { padding: 14px; }
+.shot img { width: 100%; border: 1px solid #c8c8c8; border-radius: 4px; }
+.shot { grid-template-columns: 1.55fr 1fr; }
+.side > div { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.side p { font-size: 14px; color: #444; margin: 0; }
+.dark .five { display: flex; gap: 14px; }
+.five > div { flex: 1; border: 1px solid #444; border-radius: 4px; padding: 16px; }
+.five b { background: #fff; color: #0c0c0c; }
+.five p { font-size: 13.5px; color: #bbb; margin: 0; }
+.closing { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 34px; }
+.team.row { display: flex; gap: 0; padding: 0; margin: 0; }
+.team.row > div { padding: 18px 28px; border-right: 1px solid #333; }
+.team.row > div:last-child { border: 0; }
+.thanks { font-size: 44px; font-weight: bold; text-align: right; }
+.thanks small { display: block; font-size: 13px; font-weight: normal; color: #aaa; font-family: "DejaVu Sans Mono", monospace; margin-top: 6px; }
+
+/* appendix */
+.top.app { height: 76px; padding: 0 56px; }
+.top.app .brand span { color: #555; }
+.body.two { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; padding: 26px 56px 0; }
+.cat { font-size: 11px; letter-spacing: 1px; color: #555; margin-bottom: 4px; }
+.case h3 { font-size: 22px; margin: 0 0 10px; }
+.tags .tag { font-size: 10px; padding: 5px 9px; margin-right: 6px; }
+.prog { background: #f6f6f6; border: 1px solid #ccc; padding: 10px 12px; margin-top: 14px; height: 218px; overflow: hidden; }
+.prog .code { background: transparent; }
+.prog .code pre, .prog .code .gut i { font-size: 14px; line-height: 22px; }
+.prog .code .gut { padding: 0; }
+.prog .code pre { padding: 0 8px; }
+.out { background: #121212; color: #fff; padding: 12px 14px; margin-top: 14px; height: 200px; overflow: hidden; font-family: "DejaVu Sans Mono", monospace; font-size: 13px; line-height: 1.5; }
+.out .lbl { color: #888; }
+.out p { font-size: 13px; color: #bbb; margin: 6px 0 0; }
+.out p.g { color: #8a8a8a; }
+pre.tacmini { margin: 6px 0 0; color: #ccc; font-size: 12px; line-height: 1.35; column-count: 2; }
+</style></head><body><section class="slide dark"><div class="body">
+<div class="title-grid">
+  <div>
+    <div class="eyebrow dim">COMPILER DESIGN PROJECT</div>
+    <div class="mark">Error<br>Buddy<span>;</span></div>
+    <div class="bar"></div>
+    <h2 class="big">The Compiler That Explains<br>Its Own Errors</h2>
+    <p class="dimtext">A beginner compiler in C++17 that reports every mistake on the line where<br>the fix belongs, in plain words, with one concrete fix.</p>
+    <div class="chips"><span class="tag light">5 PHASES · 3 SOURCE FILES</span><span class="tag light">C++17</span><span class="tag light">24 / 24 ON THE FIX LINE</span></div>
+  </div>
+  <div>
+    <div class="panel-dark"><div class="lbl">PROGRAM</div>
+<pre class="code bare">int a = 5;
+int b = 10
+print a + b;</pre>
+      <div class="alert"><div class="alert-h"><b>✕ ERROR</b><span>LINE 2 · SYNTAX</span></div>
+        <div>Expected ';' at the end of the statement.<br>Suggestion: Add a semicolon after '10'.</div></div>
+    </div>
+    <div class="team"><div class="lbl">TEAM</div>
+      <div class="who">Vardan Pandya</div><div class="reg">24BCE2608</div><hr><div class="who">Kunal Sharma</div><div class="reg">24BCE2641</div>
+    </div>
+  </div>
+</div></div></section><section class="slide dark"><div class="body">
+<div class="eyebrow dim">PROBLEM STATEMENT</div>
+<h1 class="huge">Compilers tell beginners that something is wrong.<br><span class="ul">Not where to fix it, or how.</span></h1>
+<div class="quote">A student forgets one semicolon. The compiler points at the next line, says <i>"expected ',' or ';' before 'printf'"</i>
+and stops. The message is accurate for someone who knows the grammar. For a beginner it names the wrong line, uses parser vocabulary
+and never says what to type. Some real mistakes, like dividing by a variable that is zero, get no message at all.</div>
+<div class="checks"><div>✕ &nbsp;Wrong line</div><div>✕ &nbsp;Grammar words</div><div>✕ &nbsp;No fix suggested</div><div>✕ &nbsp;Some mistakes not reported</div></div>
+<div class="rq"><div class="lbl">RESEARCH QUESTION</div>How can a compiler report each beginner mistake on the line where the fix belongs, in plain words, with one concrete fix?</div>
+</div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="on">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">THE PROBLEM</div><h1>Real mistakes. Unhelpful messages.</h1><p class="sub">Three beginner programs (C equivalents), compiled with gcc 11.4 -Wall -Wextra. The first diagnostic is shown.</p>
+<div class="cards3">
+  <div class="card topline"><h3>A missing semicolon</h3><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></div><pre>int a = 5;
+int b = 10
+
+// show the total
+printf(&quot;%d\n&quot;, a + b);</pre></div>
+    <p class="note">gcc: line 5: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;printf&#x27;</p><span class="tag">WRONG LINE · FIX IS ON 2</span></div>
+  <div class="card topline"><h3>Two operators in a row</h3><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 4;
+int y = x + * 3;
+printf(&quot;%d\n&quot;, y);</pre></div>
+    <p class="note">gcc: invalid type argument of unary &#x27;*&#x27; (have &#x27;int&#x27;)</p><span class="tag">GRAMMAR WORDS, NO FIX</span></div>
+  <div class="card topline"><h3>Dividing by a variable that is 0</h3><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 10;
+int zero = a - 10;
+int b = a / zero;
+printf(&quot;%d\n&quot;, b);</pre></div>
+    <p class="note">gcc: no error and no warning. The program crashes or misbehaves when it runs.</p><span class="tag">NOT REPORTED</span></div>
+</div>
+<div class="banner"><b>20 of 24 on the right line. 1 not reported at all.</b><span>We ran 24 classic beginner mistakes through gcc 11.4 and ErrorBuddy (slide 17).</span></div></div><div class="foot"><span>SLIDE 03 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="on">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">THE PROBLEM</div><h1>Where does a compiler report a mistake?</h1><p class="sub">Every phase checks one thing. The report goes where the parser noticed the problem, not where the student must edit.</p>
+<div class="steps">
+  <div><b>1</b>Lexical<small>are the words valid?</small></div><div><b>2</b>Syntax<small>does the grammar fit?</small></div>
+  <div><b>3</b>Semantic<small>do the names exist?</small></div><div><b>4</b>Code<small>generate output</small></div>
+  <div class="q"><b>5</b>Explain?<small>where is the fix, and what is it?</small></div>
+</div>
+<div class="cols2">
+  <div class="card"><div class="lbl">THE DETECTION POINT</div><p>A parser only knows a <code>;</code> is missing when it reads the <b>next</b> token. If that token is on line 3,
+  line 3 is reported, although the fix belongs at the end of line 2. When the next statement is after blank lines or comments, the report moves even further away
+  (gcc reported line 5 for a fix on line 2).</p>
+  <pre class="mini">2  int b = 10        &lt;- fix belongs here
+3
+4  // show the total
+5  printf(...)       &lt;- gcc reports here</pre></div>
+  <div class="card"><div class="lbl">THE ANALOGY</div><p>A teacher marking an essay circles the word that is misspelled and writes the right spelling in the margin.
+  A compiler that reports the next line and says "expected ... before" is like a teacher circling the next word on the page and writing "unexpected word".</p>
+  <p>Beginners need the <b>first</b> kind of feedback: the place, the rule and the fix.</p></div>
+</div></div><div class="foot"><span>SLIDE 04 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="on">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">THE IDEA</div><h1>Introducing ErrorBuddy</h1><p class="sub">A small compiler whose main output, when something is wrong, is a lesson.</p>
+<div class="cols2 w">
+  <div class="blackbox"><div class="lbl">THE THESIS</div><div class="thesis">A compiler should not just <u>detect</u> a mistake.
+  It should <u>explain</u> it: the line, the rule and the fix.</div>
+  <p>Every error is a structured object with four fields, built by the phase that found it, and printed in one fixed format.</p>
+  <div class="chips"><span class="tag light">LINE</span><span class="tag light">PHASE</span><span class="tag light">MESSAGE</span><span class="tag light">SUGGESTION</span></div></div>
+  <div class="numbered">
+    <div><b>1</b><div><h4>Report on the fix line</h4><p>A missing ';' is reported on the line of the token before it.</p></div></div>
+    <div><b>2</b><div><h4>Name the rule in plain English</h4><p>"Two operators in a row: '+' followed by '*'."</p></div></div>
+    <div><b>3</b><div><h4>Give one concrete fix</h4><p>"Add a semicolon after '10'." Not a grammar lesson.</p></div></div>
+    <div><b>4</b><div><h4>Say which phase found it</h4><p>Lexical, Syntax or Semantic Analysis.</p></div></div>
+    <div><b>5</b><div><h4>Stop before generating code</h4><p>No partial three-address code is printed for a broken program.</p></div></div>
+  </div>
+</div></div><div class="foot"><span>SLIDE 05 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="on">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">THE IDEA</div><h1>What makes it different</h1><p class="sub">Ordinary compilers stop at detection. ErrorBuddy adds a diagnosis step before every error.</p>
+<div class="grid2x2">
+  <div class="tile"><span>01</span><div><h4>Four-field errors</h4><p>CompileError { line, phase, message, suggestion } is the only way any phase reports a problem.</p></div></div>
+  <div class="tile"><span>02</span><div><h4>Diagnosis from nearby tokens</h4><p>Before reporting, the parser looks at the previous and next token to name the likely cause: extra ')', missing operator, extra '='.</p></div></div>
+  <div class="tile"><span>03</span><div><h4>Measured typo hints</h4><p>"Did you mean 'score'?" uses Levenshtein distance with a limit chosen by testing four policies on 23 typo cases.</p></div></div>
+  <div class="tile"><span>04</span><div><h4>Compile-time values</h4><p>The symbol table tracks each variable's value, so division by a variable that is 0 is caught before the program runs.</p></div></div>
+</div></div><div class="foot"><span>SLIDE 06 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="on">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">THE IDEA</div><h1>The language at a glance</h1><p class="sub">A small C-like language, kept small on purpose so that every phase is complete.</p>
+<div class="cols2 lang">
+  <div><div class="lbl">EXAMPLE PROGRAM · examples/valid.txt</div><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div><pre>// A valid ErrorBuddy program
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);</pre></div>
+    <div class="blackstrip"><span>OUTPUT</span><b>12</b> TAC instructions · <b>3</b> variables · exit 0</div></div>
+  <table class="kv">
+    <tr><td>TYPES</td><td><code>int</code> only; every variable needs a starting value</td></tr>
+    <tr><td>STATEMENTS</td><td><code>int x = e;</code> &nbsp; <code>x = e;</code> &nbsp; <code>print e;</code></td></tr>
+    <tr><td>OPERATORS</td><td><code>+ - * /</code> with precedence, and <code>( )</code></td></tr>
+    <tr><td>COMMENTS</td><td><code>// to the end of the line</code></td></tr>
+    <tr><td>RULES</td><td>every statement ends with <code>;</code> · integer division</td></tr>
+    <tr><td>NOT INCLUDED</td><td>unary minus, if/else, loops, functions, input</td></tr>
+    <tr><td>ON ERROR</td><td>stops at the first error; no TAC is printed</td></tr>
+  </table>
+</div></div><div class="foot"><span>SLIDE 07 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="on">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ARCHITECTURE</div><h1>The architecture: five phases</h1><p class="sub">Three C++ files. Phases 2 to 4 run together in one pass of the parser (syntax-directed translation).</p>
+<div class="arch">
+  <div class="ph"><b>1</b><h4>Lexical analysis</h4><code>lexer.cpp</code><p>characters → tokens with line numbers</p><div class="io">OUT · vector&lt;Token&gt;</div></div>
+  <div class="arrow">→</div>
+  <div class="ph group"><div class="glbl">parser.cpp · ONE PASS</div>
+    <div class="row3"><div><b>2</b><h4>Syntax</h4><p>recursive descent</p></div><div><b>3</b><h4>Semantic</h4><p>symbol table checks</p></div><div><b>4</b><h4>TAC</h4><p>t1 = a op b</p></div></div></div>
+  <div class="arrow">→</div>
+  <div class="ph"><b>D</b><h4>Driver</h4><code>main.cpp</code><p>prints TAC, symbol table and phase summary</p><div class="io">EXIT 0</div></div>
+</div>
+<div class="errbar"><b>5</b><div><h4>Error reporting · CompileError { line, phase, message, suggestion }</h4>
+<p>Defined in lexer.h. Any phase throws it at the first problem; main.cpp catches it, prints it and exits with code 1. No TAC is shown.</p></div></div>
+<div class="legend"><span>■ phase</span><span>□ shared error channel</span><span>exit codes: 0 ok · 1 compile error · 2 usage · 3 internal</span></div></div><div class="foot"><span>SLIDE 08 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="on">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PHASES</div><h1>Phases 1 to 3 in detail</h1><p class="sub">From raw text to checked statements.</p><div class="cards3"><div class="card topline pc"><div class="pn"><b>1</b><h3>Lexical analysis</h3></div><code class="file">lexer.cpp · tokenize()</code><ul><li>One loop over the characters</li><li>Counts newlines, so every token has a line</li><li>Skips spaces and // comments</li><li><code>int</code>, <code>print</code> only as whole words</li><li>Rejects <code>@</code>, <code>2nd</code>, numbers above INT_MAX</li></ul><div class="iorow"><span>IN</span>source string</div><div class="iorow"><span>OUT</span>tokens ending in END_OF_FILE</div></div><div class="card topline pc"><div class="pn"><b>2</b><h3>Syntax analysis</h3></div><code class="file">parser.cpp · statement() …</code><ul><li>Recursive descent: one function per rule</li><li><code>expression → term → factor</code> gives precedence</li><li>While loops give left associativity</li><li>Nesting limit of 200 for <code>(</code></li><li>Diagnoses a missing ';' before reporting</li></ul><div class="iorow"><span>IN</span>tokens</div><div class="iorow"><span>OUT</span>recognised statements</div></div><div class="card topline pc"><div class="pn"><b>3</b><h3>Semantic analysis</h3></div><code class="file">parser.cpp · symbolTable</code><ul><li><code>map&lt;name, {line, value}&gt;</code></li><li>Undeclared names, with 'Did you mean'</li><li>Duplicate declarations</li><li>Use inside its own declaration</li><li>Division by zero and int overflow</li></ul><div class="iorow"><span>IN</span>each name and operator</div><div class="iorow"><span>OUT</span>checked operands</div></div></div></div><div class="foot"><span>SLIDE 09 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="on">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PHASES</div><h1>Phases 4 and 5 in detail</h1><p class="sub">Generating code when the program is right, explaining it when it is not.</p>
+<div class="cols2">
+  <div class="card topline pc"><div class="pn"><b>4</b><h3>Three-address code</h3></div><code class="file">parser.cpp · binary(), newTemp()</code><ul><li>At most one operator per instruction</li><li>Temporaries t1, t2… skip names the user wrote</li><li>Parentheses add grouping, not instructions</li><li>Emitted as each statement is parsed</li><li>Printed only if every phase passes</li></ul><div class="iorow"><span>IN</span>operands and operators</div><div class="iorow"><span>OUT</span>TAC list in source order</div></div>
+  <div class="card topline pc"><div class="pn"><b>5</b><h3>Error reporting</h3></div><code class="file">lexer.h · CompileError</code><ul><li>Thrown by any phase at the first problem</li><li><code>expectSemicolon()</code>, <code>factorError()</code>, <code>unknownStatementError()</code> diagnose the cause</li><li>Edit-distance typo hints</li><li>Reported on the line where the fix belongs</li><li>main.cpp prints it and exits with 1</li></ul><div class="iorow"><span>IN</span>the failing token and its neighbours</div><div class="iorow"><span>OUT</span>line · phase · message · suggestion</div></div>
+</div></div><div class="foot"><span>SLIDE 10 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="on">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ARCHITECTURE</div><h1>Structure: files and shared parts</h1><p class="sub">Every file has one job. Four data structures are shared between phases.</p>
+<div class="cols2 w">
+  <table class="layers">
+    <tr><th>LAYER</th><th>FILE</th><th>JOB</th></tr>
+    <tr><td>Front end</td><td><code>lexer.h / lexer.cpp</code></td><td>Phase 1 and the shared CompileError</td></tr>
+    <tr><td>One pass</td><td><code>parser.h / parser.cpp</code></td><td>Phases 2–4 and the diagnosis helpers</td></tr>
+    <tr><td>Driver</td><td><code>main.cpp</code></td><td>Run phases, print result or error, exit code</td></tr>
+    <tr><td>Build &amp; test</td><td><code>Makefile</code>, <code>examples/</code></td><td>make, make test (10 programs)</td></tr>
+    <tr><td>Front ends</td><td><code>web/</code>, <code>site/</code></td><td>Local playground, GitHub Pages site</td></tr>
+    <tr><td>Evaluation</td><td><code>case_study/</code></td><td>24 mistakes vs gcc, hint and lexer studies</td></tr>
+  </table>
+  <div class="shared"><div class="lbl">SHARED COMPONENTS</div>
+    <div><h4>Token</h4><p>type, exact text and line number; made by the lexer, read by every later phase.</p></div>
+    <div><h4>CompileError</h4><p>line, phase, message, suggestion; the single error channel.</p></div>
+    <div><h4>Symbol table</h4><p>name → declaration line and current value.</p></div>
+    <div><h4>TAC list</h4><p>instructions in source order, printed by main.cpp.</p></div>
+  </div>
+</div></div><div class="foot"><span>SLIDE 11 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="on">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ERRORS</div><h1>What is a CompileError?</h1><p class="sub">Four fields, filled by the phase that found the problem, printed in one fixed format.</p>
+<div class="cols2 w">
+  <div><pre class="code ">struct CompileError {
+    int line;
+    std::string phase;
+    std::string message;
+    std::string suggestion;
+};</pre>
+    <div class="lbl" style="margin-top:18px">ACTUAL OUTPUT · examples/missing_semicolon.txt</div>
+    <pre class="term">Error on line 2:
+Expected &#x27;;&#x27; at the end of the statement.
+Suggestion: Add a semicolon after &#x27;10&#x27;.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div>
+  <div class="fields">
+    <div><span>LINE</span><b>2</b><p>where the fix belongs, not where parsing stopped</p></div>
+    <div><span>PHASE</span><b>Syntax Analysis</b><p>which phase found it: Lexical, Syntax or Semantic</p></div>
+    <div><span>MESSAGE</span><b>Expected ';' at the end of the statement.</b><p>the rule that was broken, in plain English</p></div>
+    <div><span>SUGGESTION</span><b>Add a semicolon after '10'.</b><p>one concrete thing to type</p></div>
+  </div>
+</div></div><div class="foot"><span>SLIDE 12 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="on">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ERRORS</div><h1>How diagnosis works, and why it runs before the report</h1><p class="sub">expectSemicolon() runs at the end of every statement. If the next token is not ';', it asks what it is instead.</p>
+<div class="flow">
+  <div><b>1</b><h4>Statement parsed</h4><p>the next token should be ';'</p></div>
+  <div><b>2</b><h4>Look at it</h4><p>what is the token instead?</p></div>
+  <div><b>3</b><h4>Match a cause</h4><p>check the rules below, in order</p></div>
+  <div><b>4</b><h4>Pick the line</h4><p>where the fix belongs</p></div>
+  <div><b>5</b><h4>Throw</h4><p>CompileError with a fix</p></div>
+</div>
+<table class="rules">
+  <tr><th>NEXT TOKEN</th><th>DIAGNOSIS</th><th>REPORTED ON</th></tr>
+  <tr><td><code>)</code></td><td>Found an extra ')' that has no matching '('.</td><td>that token's line</td></tr>
+  <tr><td><code>=</code></td><td>Unexpected '='. A statement can contain only one '='.</td><td>that token's line</td></tr>
+  <tr><td>name, number or <code>(</code> on the same line</td><td>Missing operator between the two values.</td><td>that token's line</td></tr>
+  <tr><td>anything else</td><td>Expected ';' at the end of the statement. Add a semicolon after the last token.</td><td><b>the previous token's line</b></td></tr>
+</table>
+<div class="banner sm"><b>The last rule is the fix-point rule.</b><span>It moved ErrorBuddy from 21 to 24 of 24 mistakes on the exact line (slide 18).</span></div></div><div class="foot"><span>SLIDE 13 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="on">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ERRORS</div><h1>Five kinds of beginner mistake</h1><p class="sub">The 24 mistakes in the case-study corpus, grouped by what went wrong.</p><div class="kinds"><div class="kind"><b>1</b><div class="kh"><h4>LEXICAL</h4><p>Invalid characters and names</p></div><div class="ids"><span>M23 unknown symbol</span><span>M24 name starts with a digit</span></div><em>Lexical</em></div><div class="kind"><b>2</b><div class="kh"><h4>STRUCTURE</h4><p>Missing ; and parentheses</p></div><div class="ids"><span>M01 missing ; (next line is prin</span><span>M02 missing ; (blank line + comm</span><span>M03 missing ; (next line is assi</span><span>M04 missing ; on last statement</span><span>M05 missing )</span><span>M06 missing ) (expression split </span><span>M07 extra )</span><span>M12 empty parentheses</span></div><em>Syntax</em></div><div class="kind"><b>3</b><div class="kh"><h4>EXPRESSIONS</h4><p>Operators and missing values</p></div><div class="ids"><span>M08 two operators in a row</span><span>M09 operator with no right opera</span><span>M10 missing operator between val</span><span>M11 missing value after =</span></div><em>Syntax</em></div><div class="kind"><b>4</b><div class="kh"><h4>NAMES</h4><p>Undeclared, misspelled, duplicate</p></div><div class="ids"><span>M13 undeclared variable</span><span>M14 misspelled variable</span><span>M15 misspelled print keyword</span><span>M16 duplicate declaration</span><span>M17 variable used in its own dec</span></div><em>Syntax / Semantic</em></div><div class="kind"><b>5</b><div class="kh"><h4>VALUES</h4><p>Division by zero and overflow</p></div><div class="ids"><span>M18 division by literal 0</span><span>M19 division by a variable that </span><span>M20 division by an expression th</span><span>M21 arithmetic overflow</span><span>M22 literal too large for int</span></div><em>Lexical / Semantic</em></div></div></div><div class="foot"><span>SLIDE 14 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="on">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">ERRORS</div><h1>Typo hints: how close is close enough?</h1><p class="sub">Levenshtein distance in a single rolling row. Four limits tested on 23 typo cases from case_study/corpus.py.</p>
+<div class="cols2 w">
+  <table class="rules"><tr><th>POLICY</th><th>RULE</th><th>RIGHT</th><th>WRONG</th><th>MISSED</th></tr>
+  <tr class=""><td>k1</td><td>1 edit, all names</td><td>10</td><td>8</td><td>3</td></tr><tr class="hl"><td>shipped</td><td>1 edit if <=3 letters else 2, skip names <3</td><td>12</td><td>6</td><td>1</td></tr><tr class=""><td>k2</td><td>2 edits, all names</td><td>13</td><td>9</td><td>0</td></tr><tr class=""><td>k3</td><td>3 edits, all names</td><td>13</td><td>10</td><td>0</td></tr>
+  </table>
+  <div><div class="lbl">EXAMPLES</div><pre class="code ">scroe -&gt; score   2 edits
+prnt  -&gt; print   1 edit
+mx    -&gt; max     1 edit</pre>
+    <div class="blackbox sm"><div class="lbl">SHIPPED RULE</div>1 edit for names of up to 3 letters, 2 for longer names, never the word itself,
+    and no hints for variables shorter than 3 letters. <b>Fewest wrong hints (6) with 12 right.</b></div></div>
+</div></div><div class="foot"><span>SLIDE 15 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="on">PHASES</span><span class="">ERRORS</span><span class="">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PHASES</div><h1>Meaning and code: the symbol table and TAC</h1><p class="sub">No input and no loops means every value is known at compile time, so values are tracked as well as names.</p>
+<div class="cards3 t">
+  <div class="card"><div class="lbl">SYMBOL TABLE AFTER valid.txt</div>
+    <table class="rules"><tr><th>NAME</th><th>DECLARED</th><th>VALUE</th></tr><tr><td>age</td><td>line 2</td><td>20</td></tr><tr><td>score</td><td>line 3</td><td>50</td></tr><tr><td>bonus</td><td>line 5</td><td>9</td></tr></table>
+    <p class="note">A name is added only after its starting value is parsed, so <code>int a = a + 1;</code> is caught.</p></div>
+  <div class="card"><div class="lbl">THREE-ADDRESS CODE (12)</div><pre class="term small">    age = 20
+    score = 10
+    t1 = age * 2
+    t2 = score + t1
+    score = t2
+    t3 = score - 5
+    t4 = t3 / 5
+    bonus = t4
+    print score
+    t5 = age + 1
+    t6 = bonus * t5
+    print t6</pre></div>
+  <div class="card"><div class="lbl">CAUGHT BEFORE RUNNING</div><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 10;
+int zero = a - 10;
+int b = a / zero;
+print b;</pre></div>
+    <p class="note"><b>Error on line 3:</b> Division by zero. Variable 'zero' is 0 at this point, so dividing by it is impossible.</p><span class="tag">GCC: NOT REPORTED</span></div>
+</div></div><div class="foot"><span>SLIDE 16 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>Measured against GCC</h1><p class="sub">Same mistakes written as C and compiled with gcc 11.4 -Wall -Wextra (first diagnostic). ErrorBuddy output is from the real compiler.</p><table class="vs"><tr><th>MISTAKE (FIX LINE IN CORPUS)</th><th>GCC 11.4</th><th>ERRORBUDDY</th></tr><tr><td><b>M01</b> missing ; (next line is print)</td><td>line 3: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;printf&#x27;</td><td>line 2: Expected &#x27;;&#x27; at the end of the statement.</td></tr><tr><td><b>M02</b> missing ; (blank line + comment after)</td><td>line 5: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;printf&#x27;</td><td>line 2: Expected &#x27;;&#x27; at the end of the statement.</td></tr><tr><td><b>M07</b> extra )</td><td>line 2: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;)&#x27; token</td><td>line 2: Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.</td></tr><tr><td><b>M08</b> two operators in a row</td><td>line 2: invalid type argument of unary &#x27;*&#x27; (have &#x27;int&#x27;)</td><td>line 2: Two operators in a row: &#x27;+&#x27; followed by &#x27;*&#x27;.</td></tr><tr><td><b>M10</b> missing operator between values</td><td>line 3: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;b&#x27;</td><td>line 3: Missing operator between &#x27;a&#x27; and &#x27;b&#x27;.</td></tr><tr><td><b>M14</b> misspelled variable</td><td>line 3: &#x27;scroe&#x27; undeclared (first use in this function); did you mean &#x27;score&#x27;?</td><td>line 3: Variable &#x27;scroe&#x27; has not been declared.</td></tr><tr><td><b>M15</b> misspelled print keyword</td><td>line 2: implicit declaration of function &#x27;prinft&#x27;; did you mean &#x27;printf&#x27;? [-Wimplicit-function-declaration]</td><td>line 2: Unknown word &#x27;prnt&#x27;.</td></tr><tr><td><b>M19</b> division by a variable that is 0</td><td><i>nothing reported</i></td><td>line 3: Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.</td></tr></table><p class="note">All 24 cases with both outputs are in the appendix and in case_study/out_placement.txt.</p></div><div class="foot"><span>SLIDE 17 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>Reported on the exact fix line</h1><p class="sub">case_study/run_study.py: 24 mistakes, fix line labelled by hand before any compiler was run.</p>
+<div class="cols2 w">
+  <div class="bars"><div class="brow"><span>gcc 11.4</span><div class="track"><div class="fill" style="width:83.3%">20 / 24</div></div></div><div class="brow"><span>ErrorBuddy, detection point</span><div class="track"><div class="fill" style="width:87.5%">21 / 24</div></div></div><div class="brow"><span>ErrorBuddy, fix point (shipped)</span><div class="track"><div class="fill on" style="width:100.0%">24 / 24</div></div></div>
+    <p class="note">Detection point = the line of the token where the parser noticed the problem. Fix point = the shipped rule.</p></div>
+  <div class="stats">
+    <div><b>24/24</b><p>mistakes caught by ErrorBuddy · gcc: 23</p></div>
+    <div><b>0</b><p>reports later than the fix line · gcc: 3</p></div>
+    <div><b>3</b><p>late gcc reports, all a missing ';'</p></div>
+  </div>
+</div></div><div class="foot"><span>SLIDE 18 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>One program, end to end</h1><p class="sub">examples/precedence.txt through every phase. b * 2 is computed before + because of the grammar.</p>
+<div class="pipe4">
+  <div class="card"><div class="lbl">1 · SOURCE</div><div class="code "><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 5;
+int b = 10;
+int c = a + b * 2;
+print c;</pre></div></div>
+  <div class="card"><div class="lbl">2 · TOKENS (22 + EOF)</div><pre class="term small">int c = a + b * 2 ;
+KEYWORD IDENTIFIER ASSIGN
+IDENTIFIER OPERATOR IDENTIFIER
+OPERATOR NUMBER SEMICOLON</pre></div>
+  <div class="card"><div class="lbl">3 · PARSE + CHECK</div><pre class="term small">expression()
+  term() -> a
+  +
+  term() -> b * 2
+     binary() t1 = b * 2
+  binary()  t2 = a + t1</pre></div>
+  <div class="card"><div class="lbl">4 · TAC</div><pre class="term small">a = 5
+b = 10
+t1 = b * 2
+t2 = a + t1
+c = t2
+print c</pre></div>
+</div>
+<div class="banner sm"><b>[OK] Lexical · [OK] Syntax · [OK] Semantic · [OK] Intermediate Code</b><span>Compilation successful · 6 instructions · exit 0</span></div></div><div class="foot"><span>SLIDE 19 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>The website and playground</h1><p class="sub">Published on GitHub Pages with the documentation, this presentation and the final report.</p>
+<div class="cols2 shot">
+  <img src="../report/playground_screenshot.png" alt="ErrorBuddy playground on GitHub Pages">
+  <div class="side">
+    <div><h4>Live site</h4><p><code>vardanp1.github.io/Compiler-Design-Project</code></p></div>
+    <div><h4>Playground</h4><p>Every example shows the compiler's real output: error line highlighted, phase strip, TAC, symbol table and tokens.</p></div>
+    <div><h4>Local playground</h4><p><code>make web</code> runs <code>web/server.py</code>, which calls the real binary on anything you type.</p></div>
+    <div><h4>Source</h4><p><code>github.com/Vardanp1/Compiler-Design-Project</code></p></div>
+  </div>
+</div></div><div class="foot"><span>SLIDE 20 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>Testing: make test</h1><p class="sub">Every example program has its expected output stored next to it. make test compares them byte for byte.</p>
+<div class="cols2 w"><pre class="term">PASS  examples/division_by_zero.txt
+PASS  examples/duplicate_declaration.txt
+PASS  examples/empty.txt
+PASS  examples/extra_parenthesis.txt
+PASS  examples/incorrect_parentheses.txt
+PASS  examples/invalid_expression.txt
+PASS  examples/missing_semicolon.txt
+PASS  examples/precedence.txt
+PASS  examples/undeclared_variable.txt
+PASS  examples/valid.txt
+10 passed, 0 failed</pre>
+  <div class="stats one"><div><b>10/10</b><p>example programs match their expected output</p></div>
+  <div class="card"><div class="lbl">COVERS</div><p>a valid program, precedence, missing ';', undeclared and duplicate variables, two operators in a row,
+  missing and extra ')', division by a variable that is 0, an empty file.</p><p class="note">Built with g++ -std=c++17 -Wall -Wextra -pedantic -O2, no warnings.</p></div></div>
+</div></div><div class="foot"><span>SLIDE 21 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide"><div class="top"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span></div><div class="nav"><span class="">PROBLEM</span><span class="">IDEA</span><span class="">ARCHITECTURE</span><span class="">PHASES</span><span class="">ERRORS</span><span class="on">PROOF</span></div><div class="ready">● TESTS: 10/10 PASS</div></div><div class="body"><div class="eyebrow">PROOF</div><h1>Honest limits, and what comes next</h1><p class="sub">What ErrorBuddy does not do yet, from the original proposal.</p>
+<div class="cols2 w">
+  <div class="card"><div class="lbl">KNOWN LIMITS</div><ul class="x">
+    <li><b>Only int, arithmetic and print.</b> No if/else, loops or functions.</li>
+    <li><b>Stops at the first error.</b> A program with three mistakes needs three runs.</li>
+    <li><b>No unary minus.</b> <code>-5</code> must be written as <code>0 - 5</code>.</li>
+    <li><b>Values are known at compile time</b> only because there is no input or loop.</li>
+    <li><b>TAC is the final output.</b> There is no optimiser or machine code.</li></ul></div>
+  <div class="blackbox"><div class="lbl">NEXT STEPS</div><ul class="x">
+    <li>if / else, while and for loops; comparison and logical operators; printf</li>
+    <li>Error recovery: report several errors per run</li>
+    <li>Functions and arrays; char and float</li>
+    <li>Data-flow analysis once loops and input exist</li>
+    <li>Constant folding on TAC, then an assembly back end</li></ul></div>
+</div></div><div class="foot"><span>SLIDE 22 / 23</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide dark"><div class="body">
+<div class="eyebrow dim">CLOSING</div><h1 class="huge">Five steps, one story</h1>
+<div class="five"><div><b>1</b><h4>Read</h4><p>the lexer tags every token with its line</p></div><div><b>2</b><h4>Parse</h4><p>one function per grammar rule</p></div><div><b>3</b><h4>Check</h4><p>names and values in the symbol table</p></div><div><b>4</b><h4>Generate</h4><p>three-address code, all or nothing</p></div><div><b>5</b><h4>Explain</h4><p>the line, the rule and one fix</p></div></div>
+<div class="rq c">Other compilers ask: "Is this program valid?"<br><b>ErrorBuddy also answers: "Where is the mistake, and how do I fix it?"</b></div>
+<div class="closing"><div class="team row"><div><div class="who">Vardan Pandya</div><div class="reg">24BCE2608</div></div><div><div class="who">Kunal Sharma</div><div class="reg">24BCE2641</div></div></div>
+<div class="thanks">Thank you<small>github.com/Vardanp1/Compiler-Design-Project</small></div></div></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Valid</h3><div class="tags"><span class="tag">OK</span><span class="tag light">All phases</span><span class="tag light">EXIT 0</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div><pre>// A valid ErrorBuddy program
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Compilation successful</b><pre class="tacmini">    age = 20
+    score = 10
+    t1 = age * 2
+    t2 = score + t1
+    score = t2
+    t3 = score - 5
+    t4 = t3 / 5
+    bonus = t4
+    print score
+    t5 = age + 1
+    t6 = bonus * t5
+    print t6</pre><p class="g">Matches examples/expected/valid.out</p></div></div><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Precedence</h3><div class="tags"><span class="tag">OK</span><span class="tag light">All phases</span><span class="tag light">EXIT 0</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 5;
+int b = 10;
+int c = a + b * 2;
+print c;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Compilation successful</b><pre class="tacmini">    a = 5
+    b = 10
+    t1 = b * 2
+    t2 = a + t1
+    c = t2
+    print c</pre><p class="g">Matches examples/expected/precedence.out</p></div></div></div><div class="foot"><span>APPENDIX 1 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Missing semicolon</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = 10
+print a + b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Expected &#x27;;&#x27; at the end of the statement.</b><p>Suggestion: Add a semicolon after &#x27;10&#x27;.</p><p class="g">Matches examples/expected/missing_semicolon.out</p></div></div><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Undeclared variable</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int total = 50;
+total = total + marks;
+print total;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Variable &#x27;marks&#x27; has not been declared.</b><p>Suggestion: Declare it using &#x27;int marks = 0;&#x27; before this line.</p><p class="g">Matches examples/expected/undeclared_variable.out</p></div></div></div><div class="foot"><span>APPENDIX 2 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Duplicate declaration</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int age = 18;
+int year = 2026;
+print age;
+int age = 19;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 4: Variable &#x27;age&#x27; has already been declared (on line 1).</b><p>Suggestion: Use a different variable name, or assign a new value with &#x27;age = ...;&#x27;.</p><p class="g">Matches examples/expected/duplicate_declaration.out</p></div></div><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Invalid expression</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 4;
+int y = x + * 3;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Two operators in a row: &#x27;+&#x27; followed by &#x27;*&#x27;.</b><p>Suggestion: Remove one of them, or put a number or variable between them.</p><p class="g">Matches examples/expected/invalid_expression.out</p></div></div></div><div class="foot"><span>APPENDIX 3 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Incorrect parentheses</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 2;
+int y = (x + 3 * 4;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line 2.</b><p>Suggestion: Add &#x27;)&#x27; after &#x27;4&#x27;.</p><p class="g">Matches examples/expected/incorrect_parentheses.out</p></div></div><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Extra parenthesis</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = (a + 2)) * 3;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.</b><p>Suggestion: Remove the extra &#x27;)&#x27; or add a matching &#x27;(&#x27; earlier.</p><p class="g">Matches examples/expected/extra_parenthesis.out</p></div></div></div><div class="foot"><span>APPENDIX 4 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Division by zero</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 10;
+int zero = a - 10;
+int b = a / zero;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.</b><p>Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.</p><p class="g">Matches examples/expected/division_by_zero.out</p></div></div><div class="case"><div class="cat">TEST SUITE · make test</div><h3>Empty</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i></div><pre>(empty file)</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: The program is empty. There is nothing to compile.</b><p>Suggestion: Write at least one statement, for example &#x27;int x = 5;&#x27;.</p><p class="g">Matches examples/expected/empty.out</p></div></div></div><div class="foot"><span>APPENDIX 5 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M01 Missing ; (next line is print)</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = 10
+print a + b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Expected &#x27;;&#x27; at the end of the statement.</b><p>Suggestion: Add a semicolon after &#x27;10&#x27;.</p><p class="g">gcc 11.4: line 3: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;printf&#x27;</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M02 Missing ; (blank line + comment after)</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></div><pre>int a = 5;
+int b = 10
+
+// show the total
+print a + b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Expected &#x27;;&#x27; at the end of the statement.</b><p>Suggestion: Add a semicolon after &#x27;10&#x27;.</p><p class="g">gcc 11.4: line 5: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;printf&#x27;</p></div></div></div><div class="foot"><span>APPENDIX 6 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M03 Missing ; (next line is assignment)</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 5;
+int b = 10
+b = b + a;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Expected &#x27;;&#x27; at the end of the statement.</b><p>Suggestion: Add a semicolon after &#x27;10&#x27;.</p><p class="g">gcc 11.4: line 3: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;b&#x27;</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 3</div><h3>M04 Missing ; on last statement</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = a * 2;
+print b</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Expected &#x27;;&#x27; at the end of the statement.</b><p>Suggestion: Add a semicolon after &#x27;b&#x27;.</p><p class="g">gcc 11.4: line 3: expected &#x27;;&#x27; before &#x27;return&#x27;</p></div></div></div><div class="foot"><span>APPENDIX 7 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M05 Missing )</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 2;
+int y = (x + 3 * 4;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line 2.</b><p>Suggestion: Add &#x27;)&#x27; after &#x27;4&#x27;.</p><p class="g">gcc 11.4: line 2: expected &#x27;)&#x27; before &#x27;;&#x27; token</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 3</div><h3>M06 Missing ) (expression split over lines)</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int x = 2;
+int y = (x +
+    3 * 4;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line 2.</b><p>Suggestion: Add &#x27;)&#x27; after &#x27;4&#x27;.</p><p class="g">gcc 11.4: line 3: expected &#x27;)&#x27; before &#x27;;&#x27; token</p></div></div></div><div class="foot"><span>APPENDIX 8 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M07 Extra )</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = (a + 2)) * 3;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.</b><p>Suggestion: Remove the extra &#x27;)&#x27; or add a matching &#x27;(&#x27; earlier.</p><p class="g">gcc 11.4: line 2: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;)&#x27; token</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M08 Two operators in a row</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 4;
+int y = x + * 3;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Two operators in a row: &#x27;+&#x27; followed by &#x27;*&#x27;.</b><p>Suggestion: Remove one of them, or put a number or variable between them.</p><p class="g">gcc 11.4: line 2: invalid type argument of unary &#x27;*&#x27; (have &#x27;int&#x27;)</p></div></div></div><div class="foot"><span>APPENDIX 9 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M09 Operator with no right operand</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int x = 4;
+int y = x + ;
+print y;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: The operator &#x27;+&#x27; has no value on its right side.</b><p>Suggestion: Add a number or variable after &#x27;+&#x27;, or remove the &#x27;+&#x27;.</p><p class="g">gcc 11.4: line 2: expected expression before &#x27;;&#x27; token</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 3</div><h3>M10 Missing operator between values</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 2;
+int b = 3;
+int c = a b;
+print c;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Missing operator between &#x27;a&#x27; and &#x27;b&#x27;.</b><p>Suggestion: Put an operator such as &#x27;+&#x27; or &#x27;*&#x27; between them, or end the statement with &#x27;;&#x27;.</p><p class="g">gcc 11.4: line 3: expected &#x27;,&#x27; or &#x27;;&#x27; before &#x27;b&#x27;</p></div></div></div><div class="foot"><span>APPENDIX 10 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M11 Missing value after =</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 1;
+int b = ;
+print a;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Missing value after &#x27;=&#x27;.</b><p>Suggestion: Write a value after &#x27;=&#x27;, for example &#x27;x = 5;&#x27;.</p><p class="g">gcc 11.4: line 2: expected expression before &#x27;;&#x27; token</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M12 Empty parentheses</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 1;
+int b = a * ();
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Empty parentheses &#x27;()&#x27; are not allowed.</b><p>Suggestion: Put an expression inside them, for example &#x27;(a + 1)&#x27;.</p><p class="g">gcc 11.4: line 2: expected expression before &#x27;)&#x27; token</p></div></div></div><div class="foot"><span>APPENDIX 11 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M13 Undeclared variable</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int total = 50;
+total = total + marks;
+print total;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Variable &#x27;marks&#x27; has not been declared.</b><p>Suggestion: Declare it using &#x27;int marks = 0;&#x27; before this line.</p><p class="g">gcc 11.4: line 2: &#x27;marks&#x27; undeclared (first use in this function)</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 3</div><h3>M14 Misspelled variable</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int score = 10;
+int bonus = 5;
+scroe = score + bonus;
+print score;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Variable &#x27;scroe&#x27; has not been declared.</b><p>Suggestion: Did you mean &#x27;score&#x27;? If &#x27;scroe&#x27; is a new variable, write &#x27;int scroe = ...;&#x27;.</p><p class="g">gcc 11.4: line 3: &#x27;scroe&#x27; undeclared (first use in this function); did you mean &#x27;score&#x27;?</p></div></div></div><div class="foot"><span>APPENDIX 12 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M15 Misspelled print keyword</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Parser (phase 2)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int x = 3;
+prnt x;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Unknown word &#x27;prnt&#x27;.</b><p>Suggestion: Did you mean the keyword &#x27;print&#x27;? Keywords are lowercase and followed by a space.</p><p class="g">gcc 11.4: line 2: implicit declaration of function &#x27;prinft&#x27;; did you mean &#x27;printf&#x27;? [-Wimplicit-function-declaration]</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 4</div><h3>M16 Duplicate declaration</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int age = 18;
+int year = 2026;
+print age;
+int age = 19;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 4: Variable &#x27;age&#x27; has already been declared (on line 1).</b><p>Suggestion: Use a different variable name, or assign a new value with &#x27;age = ...;&#x27;.</p><p class="g">gcc 11.4: line 4: redefinition of &#x27;age&#x27;</p></div></div></div><div class="foot"><span>APPENDIX 13 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 1</div><h3>M17 Variable used in its own declaration</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int a = a + 1;
+print a;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: Variable &#x27;a&#x27; is used in its own declaration, before it has a value.</b><p>Suggestion: Give it a starting value that does not use &#x27;a&#x27;, for example &#x27;int a = 0;&#x27;.</p><p class="g">gcc 11.4: line 1: &#x27;a&#x27; is used uninitialized [-Wuninitialized]</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M18 Division by literal 0</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 10;
+int b = a / 0;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Division by zero. You are dividing by the number 0.</b><p>Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.</p><p class="g">gcc 11.4: line 2: division by zero [-Wdiv-by-zero]</p></div></div></div><div class="foot"><span>APPENDIX 14 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 3</div><h3>M19 Division by a variable that is 0</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i><i>4</i></div><pre>int a = 10;
+int zero = a - 10;
+int b = a / zero;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 3: Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.</b><p>Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.</p><p class="g">gcc 11.4: nothing reported</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 1</div><h3>M20 Division by an expression that is 0</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int a = 8 / (4 - 4);
+print a;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: Division by zero. The expression on the right of &#x27;/&#x27; works out to 0.</b><p>Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.</p><p class="g">gcc 11.4: line 1: division by zero [-Wdiv-by-zero]</p></div></div></div><div class="foot"><span>APPENDIX 15 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 1</div><h3>M21 Arithmetic overflow</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Semantic (phase 3)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int big = 2000000000 * 2;
+print big;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: The result of &#x27;*&#x27; here is too large to fit in an int.</b><p>Suggestion: Use smaller numbers. An int must be between -2147483648 and 2147483647.</p><p class="g">gcc 11.4: line 1: integer overflow in expression of type &#x27;int&#x27; results in &#x27;-294967296&#x27; [-Woverflow]</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 1</div><h3>M22 Literal too large for int</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Lexer (phase 1)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int n = 99999999999;
+print n;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: The number 99999999999 is too large. An int can be at most 2147483647.</b><p>Suggestion: Use a smaller number.</p><p class="g">gcc 11.4: line 1: overflow in conversion from &#x27;long int&#x27; to &#x27;int&#x27; changes value from &#x27;99999999999&#x27; to &#x27;1215752191&#x27; [-Woverflow]</p></div></div></div><div class="foot"><span>APPENDIX 16 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section><section class="slide app"><div class="top app"><div class="brand"><b>EB;</b><span>ERRORBUDDY</span><span class="sep">|</span><span>APPENDIX: SAMPLE PROGRAMS</span></div></div><div class="body two"><div class="case"><div class="cat">CASE STUDY · fix belongs on line 2</div><h3>M23 Unknown symbol</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Lexer (phase 1)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i><i>3</i></div><pre>int a = 5;
+int b = a @ 2;
+print b;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 2: Unknown symbol &#x27;@&#x27;. ErrorBuddy only understands letters, digits and + - * / = ( ) ;</b><p>Suggestion: Remove the symbol or replace it with one of the supported symbols.</p><p class="g">gcc 11.4: line 2: stray &#x27;@&#x27; in program</p></div></div><div class="case"><div class="cat">CASE STUDY · fix belongs on line 1</div><h3>M24 Name starts with a digit</h3><div class="tags"><span class="tag">ERROR</span><span class="tag light">Lexer (phase 1)</span><span class="tag light">EXIT 1</span></div><div class="prog"><div class="lbl">PROGRAM</div><div class="code bare light"><div class="gut"><i>1</i><i>2</i></div><pre>int 2nd = 5;
+print 2nd;</pre></div></div><div class="out"><div class="lbl">ACTUAL OUTPUT</div><b>Error on line 1: &#x27;2nd&#x27; is not a valid name. Variable names cannot start with a digit.</b><p>Suggestion: Start the name with a letter, for example &#x27;value1&#x27; instead of &#x27;1value&#x27;.</p><p class="g">gcc 11.4: line 1: invalid suffix &quot;nd&quot; on integer constant</p></div></div></div><div class="foot"><span>APPENDIX 17 / 17</span><span>ERRORBUDDY · 5-PHASE COMPILER + FRIENDLY ERRORS</span></div></section></body></html>
