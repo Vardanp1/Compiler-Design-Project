@@ -5,7 +5,7 @@
 #
 # Every listing, output and number is read from the repository or produced by
 # running ./errorbuddy, so the report always matches the code it describes.
-import datetime, html, os, re, subprocess
+import html, os, re, subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HERE = os.path.join(ROOT, "report")
@@ -16,7 +16,6 @@ REPO = "https://github.com/Vardanp1/Compiler-Design-Project"
 PAGES = "https://vardanp1.github.io/Compiler-Design-Project/"
 PLAY = PAGES + "playground.html"
 AUTHORS = [("Vardan Pandya", "24BCE2608"), ("Kunal Sharma", "24BCE2641")]
-DATE = datetime.date.today().strftime("%d %B %Y")
 
 esc = html.escape
 
@@ -124,7 +123,6 @@ a {{ color: #2f5fd0; text-decoration: none; }}
     <p class="tag">A beginner-friendly compiler that explains its own errors: the right line, plain words, one concrete fix.</p>
     <table>
       <tr><td>Submitted by</td><td>{"<br>".join(f"{n} &nbsp;·&nbsp; {r}" for n, r in AUTHORS)}</td></tr>
-      <tr><td>Date</td><td>{DATE}</td></tr>
       <tr><td>Implementation</td><td>C++17, standard library only · {cpp_lines} lines in {len(SRC_FILES)} files</td></tr>
       <tr><td>GitHub repository</td><td><a href="{REPO}">{REPO}</a></td></tr>
       <tr><td>Live website (GitHub Pages)</td><td><a href="{PAGES}">{PAGES}</a></td></tr>
