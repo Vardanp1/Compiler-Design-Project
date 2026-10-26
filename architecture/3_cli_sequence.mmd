@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor User
+    participant Main as main.cpp
+    participant Lexer as lexer.cpp tokenize()
+    participant Parser as parser.cpp Parser
+    participant Table as Symbol table and TAC
+    User->>Main: ./errorbuddy program.txt --tokens
+    Main->>Main: open and read the whole file
+    Main->>Lexer: tokenize(source)
+    Lexer-->>Main: tokens with line numbers
+    Main->>Main: printTokens() because of --tokens
+    Main->>Parser: Parser(tokens).parseProgram()
+    loop every statement until EOF
+        Parser->>Parser: statement() then expression() term() factor()
+        Parser->>Table: look up names, check divide by zero
+        Parser->>Table: append TAC like t1 = b * 2
+    end
+    alt every phase passed
+        Parser-->>Main: returns normally
+        Main-->>User: TAC, symbol table, phase summary, exit 0
+    else first problem found
+        Parser-->>Main: throw CompileError
+        Main-->>User: Error on line N, message, suggestion, phase, exit 1
+    end

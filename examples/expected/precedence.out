@@ -1,0 +1,22 @@
+ErrorBuddy - compiling examples/precedence.txt
+
+Compilation successful!
+
+Intermediate Code (Three-Address Code):
+    a = 5
+    b = 10
+    t1 = b * 2
+    t2 = a + t1
+    c = t2
+    print c
+
+Symbol Table:
+    a           int   (declared on line 1)
+    b           int   (declared on line 2)
+    c           int   (declared on line 3)
+
+Phases completed:
+    [OK] 1. Lexical Analysis    - 22 tokens
+    [OK] 2. Syntax Analysis     - 4 statements
+    [OK] 3. Semantic Analysis   - 3 variables, no errors
+    [OK] 4. Intermediate Code   - 6 instructions

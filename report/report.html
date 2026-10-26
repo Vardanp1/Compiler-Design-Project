@@ -1,0 +1,1299 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>ErrorBuddy: Final Project Report</title>
+<style>
+@page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+body { font: 10.5pt/1.5 "Source Serif 4", "Noto Serif", Georgia, serif; color: #1b1d21; margin: 0; }
+h1, h2, h3, .cover, th, .meta, figcaption { font-family: "IBM Plex Sans", "Noto Sans", "DejaVu Sans", Arial, sans-serif; }
+h2 { font-size: 16pt; margin: 26px 0 8px; padding-top: 6px; break-after: avoid; color: #111; }
+h2.page { break-before: page; }
+h3 { font-size: 12pt; margin: 18px 0 6px; break-after: avoid; }
+p { margin: 0 0 9px; text-align: justify; }
+code { font: 9pt "IBM Plex Mono", "DejaVu Sans Mono", monospace; background: #f1efea; padding: 0 3px; border-radius: 3px; }
+pre { font: 8.4pt/1.42 "IBM Plex Mono", "DejaVu Sans Mono", monospace; background: #f6f5f1; border: 1px solid #e2dfd7;
+      border-radius: 5px; padding: 8px 10px; white-space: pre-wrap; word-break: break-word; margin: 6px 0 12px; }
+pre.src { font-size: 7.6pt; line-height: 1.35; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-size: 9.5pt; break-inside: auto; }
+th, td { border: 1px solid #d9d5cc; padding: 5px 7px; text-align: left; vertical-align: top; }
+th { background: #efece5; font-weight: 600; font-size: 9pt; }
+tr { break-inside: avoid; }
+figure { margin: 10px 0 16px; break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; max-height: 225mm; }
+img.shot { border: 1px solid #d9d5cc; border-radius: 6px; }
+figcaption { font-size: 9pt; color: #5d6168; margin-top: 4px; }
+.two { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
+.cover h1 { font-size: 44pt; margin: 40mm 0 6px; letter-spacing: -.01em; }
+.cover h1 span { color: #d9483b; }
+.cover .tag { font-size: 15pt; color: #4a4e56; margin: 0 0 22px; }
+.cover table { font-size: 10.5pt; }
+.cover td:first-child { width: 38mm; font-weight: 600; }
+.meta { font-size: 10pt; color: #4a4e56; }
+.toc ol { columns: 2; font-family: "IBM Plex Sans", "Noto Sans", Arial, sans-serif; font-size: 10.5pt; }
+.box { border: 1px solid #d9d5cc; border-radius: 6px; padding: 10px 14px; background: #faf9f6; margin: 8px 0 14px; break-inside: avoid; }
+.ok { color: #237a52; font-weight: 600; }
+a { color: #2f5fd0; text-decoration: none; }
+</style></head><body>
+
+<section class="cover">
+  <div>
+    <div class="meta">Compiler Design Project · Final Report</div>
+    <h1>Error<span>Buddy</span></h1>
+    <p class="tag">A beginner-friendly compiler that explains its own errors: the right line, plain words, one concrete fix.</p>
+    <table>
+      <tr><td>Author</td><td>Vardan Pandya</td></tr>
+      <tr><td>Date</td><td>26 October 2026</td></tr>
+      <tr><td>Implementation</td><td>C++17, standard library only · 726 lines in 5 files</td></tr>
+      <tr><td>GitHub repository</td><td><a href="https://github.com/Vardanp1/Compiler-Design-Project">https://github.com/Vardanp1/Compiler-Design-Project</a></td></tr>
+      <tr><td>Live website (GitHub Pages)</td><td><a href="https://vardanp1.github.io/Compiler-Design-Project/">https://vardanp1.github.io/Compiler-Design-Project/</a></td></tr>
+      <tr><td>Online playground</td><td><a href="https://vardanp1.github.io/Compiler-Design-Project/playground.html">https://vardanp1.github.io/Compiler-Design-Project/playground.html</a></td></tr>
+      <tr><td>Presentation</td><td><a href="https://vardanp1.github.io/Compiler-Design-Project/ErrorBuddy_Complete.pdf">https://vardanp1.github.io/Compiler-Design-Project/ErrorBuddy_Complete.pdf</a> (also <code>ErrorBuddy_Complete.pptx</code> in the repository)</td></tr>
+      <tr><td>This report</td><td><a href="https://vardanp1.github.io/Compiler-Design-Project/ErrorBuddy_Final_Report.pdf">https://vardanp1.github.io/Compiler-Design-Project/ErrorBuddy_Final_Report.pdf</a></td></tr>
+      <tr><td>Test status</td><td class="ok">10 of 10 example programs pass <code>make test</code></td></tr>
+    </table>
+  </div>
+  <div class="meta">Built from commit 2c3c6e3 of the repository. All listings, outputs and numbers in this report are generated from the project files by <code>report/build_report.py</code>.</div>
+</section>
+
+<section class="toc"><h2>Contents</h2><ol>
+<li>Abstract</li><li>Introduction and problem statement</li><li>Objectives</li><li>The source language</li>
+<li>System architecture</li><li>Phase 1: lexical analysis</li><li>Phase 2: syntax analysis</li><li>Phase 3: semantic analysis</li>
+<li>Phase 4: intermediate code generation</li><li>Phase 5: error detection and explanation</li><li>Tools, build and usage</li>
+<li>Web playground and GitHub Pages deployment</li><li>Testing</li><li>Evaluation: case study against gcc</li>
+<li>Results and discussion</li><li>Limitations and future work</li><li>Conclusion</li><li>References</li>
+<li>Appendix A: full source code</li><li>Appendix B: example programs and outputs</li></ol></section>
+
+<h2>1. Abstract</h2>
+<p>ErrorBuddy is a small compiler, written in C++17 using only the standard library, that translates a beginner programming language into three-address code (TAC). It implements the five classic phases: lexical analysis, syntax analysis by recursive descent, semantic analysis with a symbol table, intermediate code generation, and error reporting. Its distinguishing feature is the error report. Every error is a structured object with four fields (the line where the fix belongs, the phase that found it, a plain-English message, and one concrete suggestion), and the parser inspects the tokens around a failure to name its likely cause. In a case study of 24 classic beginner mistakes, ErrorBuddy reported all 24 on the exact line where the fix belongs, against 20 for gcc 11.4. The compiler is tested by an automated suite (10/10 passing), and is published as a GitHub Pages website with the documentation, the presentation, this report and a playground that shows the real compiler output for every example program.</p>
+
+<h2>2. Introduction and problem statement</h2>
+<p>Students learning to program spend a large share of their time reading compiler errors. Production compilers are written for experienced users: their messages use grammar vocabulary, and they report the position where the parser noticed a problem, which is often after the position where the mistake was made. A typical example is a missing semicolon:</p>
+<div class="two"><pre class="">1  int a = 5;
+2  int b = 10          &lt;- the real mistake
+3  printf(&quot;%d&quot;, a + b);</pre><pre class="">program.c:3:5: error: expected &#x27;,&#x27; or &#x27;;&#x27;
+before &#x27;printf&#x27;</pre></div>
+<p>gcc points at line 3, although the fix belongs on line 2. It says "expected ... before", which is parser vocabulary rather than plain English, and it does not say what to type. ErrorBuddy reports the same mistake like this:</p>
+<pre class="">ErrorBuddy - compiling examples/missing_semicolon.txt
+
+Error on line 2:
+Expected &#x27;;&#x27; at the end of the statement.
+Suggestion: Add a semicolon after &#x27;10&#x27;.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre>
+<p>The goal of the project is a complete, readable compiler whose error messages behave like a tutor: the right line, plain words and one concrete fix.</p>
+
+<h2>3. Objectives</h2>
+<table><tr><th>#</th><th>Objective</th><th>How it is met</th></tr>
+<tr><td>1</td><td>Build a working compiler from source text to intermediate code</td><td><code>./errorbuddy file.txt</code> prints three-address code, the symbol table and a phase summary.</td></tr>
+<tr><td>2</td><td>Cover every core phase</td><td>Lexer (<code>lexer.cpp</code>), recursive-descent parser, semantic checks and TAC generation (<code>parser.cpp</code>), error reporting (<code>CompileError</code>).</td></tr>
+<tr><td>3</td><td>Report errors like a tutor</td><td>Four-field errors, diagnosis from surrounding tokens, edit-distance typo hints, fix-line reporting.</td></tr>
+<tr><td>4</td><td>Hand-written C++ only</td><td>No Lex, Yacc or third-party libraries; C++17 standard library only, built with <code>g++ -std=c++17 -Wall -Wextra -pedantic</code>.</td></tr></table>
+
+<h2 class="page">4. The source language</h2>
+<p>The language is a small, C-like beginner language. It was deliberately kept small so that every phase could be implemented completely and the effort could go into the error messages. The original proposal targeted a larger beginner-C subset with <code>if</code>/<code>else</code>, loops and <code>printf</code>; those features are listed as future work in Section 16 and are not implemented.</p>
+<ul>
+<li>Every variable is an <code>int</code>, declared with <code>int</code> and always given a starting value.</li>
+<li>Arithmetic uses <code>+ - * /</code> with normal precedence and parentheses. Division is integer division.</li>
+<li><code>print</code> outputs the value of any expression. Every statement ends with <code>;</code>. <code>//</code> starts a comment.</li>
+<li>There is no unary minus (write <code>0 - 5</code>), no loops, no <code>if</code>/<code>else</code>, no functions and no input. Compilation stops at the first error.</li></ul>
+<h3>4.1 Grammar</h3>
+<pre class="">program     -&gt; statement*
+statement   -&gt; declaration | assignment | printStmt
+declaration -&gt; &quot;int&quot; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+assignment  -&gt; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+printStmt   -&gt; &quot;print&quot; expression &quot;;&quot;
+expression  -&gt; term ((&quot;+&quot; | &quot;-&quot;) term)*
+term        -&gt; factor ((&quot;*&quot; | &quot;/&quot;) factor)*
+factor      -&gt; NUMBER | IDENTIFIER | &quot;(&quot; expression &quot;)&quot;</pre>
+<p>Precedence is built into the grammar: <code>term</code> handles <code>*</code> and <code>/</code> one level below <code>expression</code>, so they bind more tightly than <code>+</code> and <code>-</code>. The repetition in <code>expression</code> and <code>term</code> is implemented as a loop, which makes the operators left-associative.</p>
+<h3>4.2 Example program</h3>
+<pre class="">// A valid ErrorBuddy program
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);</pre>
+
+<h2 class="page">5. System architecture</h2>
+<p>The compiler consists of three C++ source files and two headers. <code>lexer.cpp</code> implements Phase 1. <code>parser.cpp</code> implements Phases 2, 3 and 4 in a single pass: while it recognises a statement it checks its meaning against the symbol table and emits its three-address code. This technique is called syntax-directed translation. <code>main.cpp</code> is the driver. Errors from every phase travel through one channel, the <code>CompileError</code> struct defined in <code>lexer.h</code>.</p>
+<pre class="">struct CompileError {
+    int line;
+    std::string phase;       // which compiler phase found the problem
+    std::string message;     // what is wrong, in plain English
+    std::string suggestion;  // one concrete way to fix it
+};</pre>
+<table><tr><th>File</th><th>Lines</th><th>Responsibility</th></tr>
+<tr><td><code>main.cpp</code></td><td>88</td><td>Reads the file path and optional <code>--tokens</code> flag, reads the file, calls <code>tokenize()</code> and <code>Parser::parseProgram()</code>, prints the TAC, symbol table and phase summary, or catches <code>CompileError</code> and prints it. Sets the exit code.</td></tr>
+<tr><td><code>lexer.h</code> / <code>lexer.cpp</code></td><td>48 / 114</td><td>Phase 1: <code>TokenType</code>, <code>Token</code>, <code>tokenize()</code>, <code>tokenTypeName()</code>, and the shared <code>CompileError</code>.</td></tr>
+<tr><td><code>parser.h</code> / <code>parser.cpp</code></td><td>80 / 396</td><td>Phases 2 to 4: grammar functions, symbol table, <code>binary()</code> and <code>newTemp()</code> for TAC, and the diagnosis helpers <code>expectSemicolon()</code>, <code>factorError()</code>, <code>unknownStatementError()</code>, <code>editDistance()</code>, <code>similarVariable()</code>.</td></tr>
+<tr><td><code>Makefile</code></td><td>45</td><td>Targets <code>all</code>, <code>run</code>, <code>test</code>, <code>web</code>, <code>clean</code>.</td></tr>
+<tr><td><code>examples/</code></td><td>10 + 10</td><td>Test programs and their expected output.</td></tr>
+<tr><td><code>web/</code></td><td>89 / 288</td><td>Local browser playground: <code>server.py</code> runs the real binary and returns JSON.</td></tr>
+<tr><td><code>site/</code>, <code>ci/</code></td><td>161 / 329</td><td>GitHub Pages site, its playground and <code>build_site.py</code>; optional WebAssembly workflow in <code>ci/</code>.</td></tr>
+<tr><td><code>case_study/</code></td><td>389</td><td>24-mistake corpus and the ErrorBuddy versus gcc study.</td></tr></table>
+<h3>5.1 Exit codes</h3>
+<table><tr><th>Code</th><th>Meaning</th></tr><tr><td>0</td><td>Every phase passed; TAC printed.</td></tr><tr><td>1</td><td>A <code>CompileError</code> was reported; no TAC printed.</td></tr>
+<tr><td>2</td><td>Bad usage or unreadable file (for example: <code>Usage: ./errorbuddy &lt;source-file&gt; [--tokens]</code>).</td></tr><tr><td>3</td><td>Internal compiler error (any other exception).</td></tr></table>
+<figure><img src="../architecture/1_full_architecture.svg" alt="Full architecture"><figcaption>Figure 1. Full architecture and execution flow: build, ways to run, the five phases, and who reads the output.</figcaption></figure>
+<figure><img src="../architecture/3_cli_sequence.svg" alt="CLI sequence"><figcaption>Figure 2. Sequence of one compile from the terminal.</figcaption></figure>
+
+<h2 class="page">6. Phase 1: lexical analysis</h2>
+<p><code>tokenize()</code> is a hand-written scanner with a single loop over the characters. A newline increments the line counter; spaces and <code>//</code> comments are skipped; a run of digits becomes a <code>NUMBER</code>; a letter or underscore starts a name, and the whole words <code>int</code> and <code>print</code> become keywords; single characters become operators, <code>=</code>, parentheses or <code>;</code>. The list always ends with <code>END_OF_FILE</code>. Every token stores its type, its exact text and its line, and those line numbers are what make accurate error lines possible later.</p>
+<p>The lexer reports three kinds of lexical error: an unknown symbol such as <code>@</code>, a number larger than <code>INT_MAX</code>, and a name that starts with a digit such as <code>2nd</code>. The <code>--tokens</code> option prints the token list:</p>
+<pre class="">ErrorBuddy - compiling examples/precedence.txt
+
+Tokens (output of the lexer):
+  Line  Type        Text
+  1     KEYWORD     int
+  1     IDENTIFIER  a
+  1     ASSIGN      =
+  1     NUMBER      5
+  1     SEMICOLON   ;
+  2     KEYWORD     int
+  2     IDENTIFIER  b
+  2     ASSIGN      =
+  2     NUMBER      10
+  2     SEMICOLON   ;
+  3     KEYWORD     int
+  3     IDENTIFIER  c
+  3     ASSIGN      =
+  3     IDENTIFIER  a
+  3     OPERATOR    +
+  3     IDENTIFIER  b
+  3     OPERATOR    *
+  3     NUMBER      2
+  3     SEMICOLON   ;
+  4     KEYWORD     print
+  4     IDENTIFIER  c
+  4     SEMICOLON   ;</pre>
+
+<h2>7. Phase 2: syntax analysis</h2>
+<p>The parser is a recursive-descent parser with one C++ function per grammar rule: <code>statement()</code>, <code>declaration()</code>, <code>assignment()</code>, <code>printStatement()</code>, <code>expression()</code>, <code>term()</code> and <code>factor()</code>. <code>statement()</code> dispatches on the first token: <code>int</code> starts a declaration, <code>print</code> a print statement, and a name followed by <code>=</code> an assignment. Anything else goes to <code>unknownStatementError()</code>. <code>factor()</code> recurses on <code>(</code>, with a nesting limit of 200.</p>
+<p>For <code>int c = a + b * 2;</code>, <code>declaration()</code> calls <code>expression()</code>; the first <code>term()</code> returns <code>a</code>; <code>+</code> is seen; the next <code>term()</code> reads <code>b</code>, sees <code>*</code>, reads <code>2</code> and calls <code>binary()</code>, which emits <code>t1 = b * 2</code>. Back in <code>expression()</code>, <code>binary()</code> emits <code>t2 = a + t1</code>. <code>expectSemicolon()</code> finds the <code>;</code>, <code>c</code> is entered in the symbol table and <code>c = t2</code> is emitted.</p>
+<figure><img src="../architecture/2_parser_internals.svg" alt="Parser internals"><figcaption>Figure 3. Control flow inside the parser, with every point where a CompileError can be thrown (red).</figcaption></figure>
+
+<h2 class="page">8. Phase 3: semantic analysis</h2>
+<p>The symbol table is a <code>std::map&lt;std::string, Symbol&gt;</code>, where <code>Symbol</code> holds the declaration line and the current value. Checks run inside the parser at the moment a name or operator is seen:</p>
+<table><tr><th>Check</th><th>Example</th></tr>
+<tr><td>Undeclared variable, with a "Did you mean" hint for close names</td><td><code>scroe = 2;</code> → Did you mean 'score'?</td></tr>
+<tr><td>Duplicate declaration</td><td>Variable 'age' has already been declared (on line 1).</td></tr>
+<tr><td>Variable used in its own declaration</td><td><code>int a = a + 1;</code> (a name is added only after its initial value is parsed)</td></tr>
+<tr><td>Division by zero, including through variables and expressions</td><td><code>a / zero</code>, <code>8 / (4 - 4)</code></td></tr>
+<tr><td>Integer overflow of a result</td><td>Result outside <code>INT_MIN</code>..<code>INT_MAX</code></td></tr>
+<tr><td>Keyword used as a variable name; declaration without a value</td><td><code>int print = 1;</code>, <code>int a;</code></td></tr></table>
+<p>Because the language has no input and no loops, every value is known at compile time. ErrorBuddy tracks values in the symbol table, which is how a division by a variable that holds 0 is caught before the program runs:</p>
+<pre class="">ErrorBuddy - compiling examples/division_by_zero.txt
+
+Error on line 3:
+Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.
+Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.</pre>
+
+<h2>9. Phase 4: intermediate code generation</h2>
+<p>The intermediate representation is three-address code. Each instruction has at most one operator. <code>binary()</code> computes the value, checks for division by zero and overflow, takes a fresh temporary from <code>newTemp()</code> and emits <code>tN = left op right</code>. Temporaries are numbered <code>t1</code>, <code>t2</code>, and so on, skipping any name the user wrote, so a temporary never clashes with a variable. Parentheses only change grouping and produce no instructions. Code for a statement is emitted as soon as it is parsed, so the TAC is in source order, and it is printed only if the whole program compiles. The complete output for <code>examples/valid.txt</code>:</p>
+<pre class="">ErrorBuddy - compiling examples/valid.txt
+
+Compilation successful!
+
+Intermediate Code (Three-Address Code):
+    age = 20
+    score = 10
+    t1 = age * 2
+    t2 = score + t1
+    score = t2
+    t3 = score - 5
+    t4 = t3 / 5
+    bonus = t4
+    print score
+    t5 = age + 1
+    t6 = bonus * t5
+    print t6
+
+Symbol Table:
+    age         int   (declared on line 2)
+    bonus       int   (declared on line 5)
+    score       int   (declared on line 3)
+
+Phases completed:
+    [OK] 1. Lexical Analysis    - 41 tokens
+    [OK] 2. Syntax Analysis     - 6 statements
+    [OK] 3. Semantic Analysis   - 3 variables, no errors
+    [OK] 4. Intermediate Code   - 12 instructions</pre>
+
+<h2 class="page">10. Phase 5: error detection and explanation</h2>
+<p>Any phase reports a problem by throwing a <code>CompileError</code>; <code>main.cpp</code> catches it, prints the four fields in a fixed format and exits with code 1. What makes the messages useful is the diagnosis that happens before the throw.</p>
+<h3>10.1 Diagnosis from surrounding tokens</h3>
+<p><code>expectSemicolon()</code> runs at the end of every statement. If the next token is not <code>;</code>, it looks at what it is:</p>
+<table><tr><th>Next token</th><th>Diagnosis</th></tr>
+<tr><td><code>)</code></td><td>Found an extra ')' that has no matching '('.</td></tr>
+<tr><td><code>=</code></td><td>Unexpected '='. A statement can contain only one '='.</td></tr>
+<tr><td>a name, number or <code>(</code> on the same line</td><td>Missing operator between the two values.</td></tr>
+<tr><td>anything else</td><td>Expected ';' at the end of the statement, reported on the line of the previous token, which is where the fix belongs.</td></tr></table>
+<p><code>factorError()</code> handles a missing value (two operators in a row, a negative literal, empty parentheses, a keyword inside an expression, a program that ends mid-expression). <code>unknownStatementError()</code> handles a statement that starts wrongly (a misspelled or capitalised keyword, a name on its own, an extra <code>;</code>, an <code>=</code> with no name).</p>
+<h3>10.2 Typo hints</h3>
+<p>Hints use the Levenshtein edit distance, computed in a single rolling row (<code>editDistance()</code>). The shipped rule, in <code>looksLike()</code>, allows 1 edit for targets of up to 3 letters and 2 edits for longer ones and never suggests the word itself; <code>similarVariable()</code> skips variable names shorter than 3 letters. The rule was chosen by the study in Section 14.3.</p>
+<h3>10.3 Example messages</h3>
+<table><tr><th>Program</th><th>ErrorBuddy output</th></tr><tr><td><code>division_by_zero.txt</code></td><td>Error on line 3: Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.</td></tr><tr><td><code>duplicate_declaration.txt</code></td><td>Error on line 4: Variable &#x27;age&#x27; has already been declared (on line 1).</td></tr><tr><td><code>empty.txt</code></td><td>Error on line 1: The program is empty. There is nothing to compile.</td></tr><tr><td><code>extra_parenthesis.txt</code></td><td>Error on line 2: Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.</td></tr><tr><td><code>incorrect_parentheses.txt</code></td><td>Error on line 2: Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line 2.</td></tr><tr><td><code>invalid_expression.txt</code></td><td>Error on line 2: Two operators in a row: &#x27;+&#x27; followed by &#x27;*&#x27;.</td></tr><tr><td><code>missing_semicolon.txt</code></td><td>Error on line 2: Expected &#x27;;&#x27; at the end of the statement.</td></tr><tr><td><code>precedence.txt</code></td><td>Compilation successful</td></tr><tr><td><code>undeclared_variable.txt</code></td><td>Error on line 2: Variable &#x27;marks&#x27; has not been declared.</td></tr><tr><td><code>valid.txt</code></td><td>Compilation successful</td></tr></table>
+
+<h2 class="page">11. Tools, build and usage</h2>
+<table><tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>make</code></td><td>Builds <code>./errorbuddy</code> with <code>g++ -std=c++17 -Wall -Wextra -pedantic -O2</code>.</td></tr>
+<tr><td><code>./errorbuddy file.txt [--tokens]</code></td><td>Compiles a file; <code>--tokens</code> also prints the lexer output.</td></tr>
+<tr><td><code>make run FILE=examples/valid.txt</code></td><td>Builds and compiles one file.</td></tr>
+<tr><td><code>make test</code></td><td>Runs every example and diffs its output with <code>examples/expected/*.out</code>.</td></tr>
+<tr><td><code>make web</code></td><td>Starts the local playground at <code>http://localhost:8795</code>.</td></tr>
+<tr><td><code>python3 case_study/run_study.py [--hints | --lexer]</code></td><td>Reproduces the case-study numbers.</td></tr>
+<tr><td><code>python3 report/build_report.py</code></td><td>Regenerates this report.</td></tr></table>
+<p>Tools used: C++17 and its standard library, g++ and GNU Make for the compiler; Python 3 standard library for the local web server and the case study; Emscripten for the WebAssembly build; GitHub Pages for hosting (with an optional GitHub Actions workflow); Mermaid for the architecture diagrams.</p>
+
+<h2>12. Web playground and GitHub Pages deployment</h2>
+<p>The project has two browser front ends that share one page design and one compiler.</p>
+<ul><li><b>Local playground</b> (<code>make web</code>): <code>web/server.py</code> serves <code>web/index.html</code> and an endpoint <code>POST /api/compile</code>. It writes the source to a temporary file, runs the real <code>./errorbuddy --tokens</code> with a 5-second timeout and turns its text output into JSON (tokens, error, TAC, symbols, phases). The page recompiles about 350 ms after typing stops, highlights the error line, and shows how far the pipeline got.</li>
+<li><b>GitHub Pages</b> (<a href="https://vardanp1.github.io/Compiler-Design-Project/">https://vardanp1.github.io/Compiler-Design-Project/</a>): GitHub Pages serves only static files and cannot run the compiler binary. <code>site/build_site.py</code> builds the compiler, runs it on every example program with <code>--tokens</code>, and records the real output in <code>examples.json</code>. The site is published from the <code>gh-pages</code> branch and contains the project page, the playground (<a href="https://vardanp1.github.io/Compiler-Design-Project/playground.html">https://vardanp1.github.io/Compiler-Design-Project/playground.html</a>), the architecture diagrams, the presentation and this report. The playground uses the same page design as the local one and parses the recorded output with a JavaScript port of the server's parser, so every example shows exactly what the compiler prints. Compiling new code needs the local playground or the command line.</li></ul>
+<p>The repository also contains <code>ci/github-pages-wasm.yml</code>, an optional GitHub Actions workflow. On every push to <code>main</code> it builds the compiler natively and runs <code>make test</code>, compiles the same <code>main.cpp</code>, <code>lexer.cpp</code> and <code>parser.cpp</code> to WebAssembly with Emscripten, and deploys the site. With that build present, the playground writes the program into Emscripten's in-memory file system and calls the compiler's <code>main()</code> directly, so any program can be compiled in the browser without reimplementing compiler logic in JavaScript. Enabling it means moving the file to <code>.github/workflows/</code>, which requires a GitHub token with the <code>workflow</code> scope.</p>
+
+
+<figure><img src="../architecture/4_web_sequence.svg" alt="Web sequence"><figcaption>Figure 4. Sequence of a compile in the local web playground.</figcaption></figure>
+
+<h2 class="page">13. Testing</h2>
+<p>Each example program targets one behaviour, and its expected output is stored next to it. <code>make test</code> compiles every example and compares the output byte for byte. Output of the run used for this report:</p>
+<pre class="">PASS  examples/division_by_zero.txt
+PASS  examples/duplicate_declaration.txt
+PASS  examples/empty.txt
+PASS  examples/extra_parenthesis.txt
+PASS  examples/incorrect_parentheses.txt
+PASS  examples/invalid_expression.txt
+PASS  examples/missing_semicolon.txt
+PASS  examples/precedence.txt
+PASS  examples/undeclared_variable.txt
+PASS  examples/valid.txt
+10 passed, 0 failed</pre>
+<p>The suite covers a valid program, operator precedence, a missing semicolon, an undeclared variable, a duplicate declaration, two operators in a row, a missing and an extra parenthesis, division by a variable that is zero, and an empty program. The optional GitHub Actions workflow in <code>ci/</code> runs the same suite before each deployment.</p>
+
+<h2>14. Evaluation: case study against gcc</h2>
+<h3>14.1 Method</h3>
+<p><code>case_study/run_study.py</code> runs 24 classic beginner mistakes (defined in <code>case_study/corpus.py</code>) through three compilers: <b>G</b>, gcc 11.4 on the equivalent C program (<code>-Wall -Wextra</code>, first diagnostic); <b>D</b>, ErrorBuddy patched to report the line of the token where the parser noticed the problem (the detection point); and <b>E</b>, ErrorBuddy as shipped, which reports the line where the fix belongs. For each mistake the study records the reported line and compares it with the line of the fix. An asterisk marks a report on the wrong line.</p>
+<pre class="">case mistake                                    fix    G    D    E   gcc kind
+M01  missing ; (next line is print)               2   3*   3*    2   error
+M02  missing ; (blank line + comment after)       2   5*   5*    2   error
+M03  missing ; (next line is assignment)          2   3*   3*    2   error
+M04  missing ; on last statement                  3    3    3    3   error
+M05  missing )                                    2    2    2    2   error
+M06  missing ) (expression split over lines)      3    3    3    3   error
+M07  extra )                                      2    2    2    2   error
+M08  two operators in a row                       2    2    2    2   error
+M09  operator with no right operand               2    2    2    2   error
+M10  missing operator between values              3    3    3    3   error
+M11  missing value after =                        2    2    2    2   error
+M12  empty parentheses                            2    2    2    2   error
+M13  undeclared variable                          2    2    2    2   error
+M14  misspelled variable                          3    3    3    3   error
+M15  misspelled print keyword                     2    2    2    2   warning
+M16  duplicate declaration                        4    4    4    4   error
+M17  variable used in its own declaration         1    1    1    1   warning
+M18  division by literal 0                        2    2    2    2   warning
+M19  division by a variable that is 0             3    -    3    3   none
+M20  division by an expression that is 0          1    1    1    1   warning
+M21  arithmetic overflow                          1    1    1    1   warning
+M22  literal too large for int                    1    1    1    1   warning
+M23  unknown symbol                               2    2    2    2   error
+M24  name starts with a digit                     1    1    1    1   error
+
+G  gcc 11.4 (first diagnostic)            caught=23/24  line-exact=20/24  late=3  early=0
+D  ErrorBuddy, detection-point line       caught=24/24  line-exact=21/24  late=3  early=0
+E  ErrorBuddy, fix-point line (shipped)   caught=24/24  line-exact=24/24  late=0  early=0</pre>
+<h3>14.2 Line placement results</h3>
+<table><tr><th>Compiler</th><th>Caught</th><th>Exact fix line</th><th>Late</th><th>Early</th></tr>
+<tr><td>gcc 11.4</td><td>23 / 24</td><td>20 / 24</td><td>3</td><td>0</td></tr>
+<tr><td>ErrorBuddy, detection point</td><td>24 / 24</td><td>21 / 24</td><td>3</td><td>0</td></tr>
+<tr><td>ErrorBuddy, shipped (fix point)</td><td>24 / 24</td><td><b>24 / 24</b></td><td>0</td><td>0</td></tr></table>
+<p>gcc missed one mistake entirely (M19, division by a variable that is 0). All three of its late reports, and all three of the detection-point variant's, were a missing semicolon, which is the case the fix-point rule was designed for.</p>
+<h3>14.3 Typo-hint policy</h3>
+<p><code>run_study.py --hints</code> tests four policies for "Did you mean" hints on 23 typo cases. "Right" means the intended name was suggested, "wrong" means another name was suggested, "missed" means a real typo got no hint, and "silent-ok" means a non-typo correctly got no hint.</p>
+<pre class="">policy   rule                                           right wrong missed silent-ok
+k1       1 edit, all names                                 10     8      3         3
+shipped  1 edit if &lt;=3 letters else 2, skip names &lt;3       12     6      1         5
+k2       2 edits, all names                                13     9      0         2
+k3       3 edits, all names                                13    10      0         1
+
+typo   expect        k1 shipped      k2      k3
+scroe  score          -   score   score   score
+totl   total      total   total   total   total
+cuont  count          -   count   count   count
+avrage average  average average average average
+averge average  average average average average
+reslt  result    result  result  result  result
+totals total      total   total   total   total
+numbr  number    number  number  number  number
+conter counter  counter counter counter counter
+salry  salary    salary  salary  salary  salary
+sun    sum          sum     sum     sum     sum
+mx     max          max     max     max     max
+aeg    age            -       -     age     age
+z      -              x       -       x       x
+c      -              a       -       a       a
+sum2   -            sum     sum     sum     sum
+tax    -              -       -       -   total
+store  -          score   score   score   score
+height -              -       -       -       -
+dry    -            day     day     day     day
+date   -           rate    rate    rate    rate
+values -          value   value   value   value
+min    -              -       -     max     max
+fast   -           last   first   first   first</pre>
+<p>Looser limits find more right answers but also more wrong ones. The shipped policy gives the fewest wrong suggestions (6) while still getting 12 right.</p>
+<h3>14.4 Lexer rules</h3>
+<p><code>run_study.py --lexer</code> removes one lexer rule at a time to show what it protects against:</p>
+<pre class="">================================================================
+L1 comment rule after &#x27;/&#x27;
+source: int a = 10 / 2; // half of ten | print a; | 
+  shipped  tokens: int a = 10 / 2 ; print a ;
+           result: OK
+  variant  tokens: int a = 10 / 2 ; / / half of ten print a ;
+           result: Error on line 1: A statement cannot start with &#x27;/&#x27;.
+================================================================
+L2 no digit-then-letter rule
+source: int 2nd = 5; | print 2nd; | 
+  shipped  tokens: (lexer stopped)
+           result: Error on line 1: &#x27;2nd&#x27; is not a valid name. Variable names cannot start with a digit.
+  variant  tokens: int 2 nd = 5 ; print 2 nd ;
+           result: Error on line 1: Expected a variable name after &#x27;int&#x27;, but found &#x27;2&#x27;.
+================================================================
+L3 keyword matched as prefix
+source: int interest = 5; | int printer = 2; | print interest + printer; | 
+  shipped  tokens: int interest = 5 ; int printer = 2 ; print interest + printer ;
+           result: OK
+  variant  tokens: int int erest = 5 ; int print er = 2 ; print int erest + print er ;
+           result: Error on line 1: &#x27;int&#x27; is a reserved keyword and cannot be used as a variable name.</pre>
+
+<h2 class="page">15. Results and discussion</h2>
+<ul><li>A complete compiler pipeline from source text to three-address code, in about 726 lines of C++17 with no external tools.</li>
+<li>All 10 example programs pass <code>make test</code>.</li>
+<li>Every one of 24 case-study mistakes is caught and reported on the line where the fix belongs (gcc: 23 caught, 20 on the exact line).</li>
+<li>Error messages name the broken rule in plain English and give one concrete suggestion, for example "Add a semicolon after '10'." instead of "expected ',' or ';' before 'printf'".</li>
+<li>The project is published on GitHub Pages, where the documentation, the presentation, this report and the example outputs can be viewed without installing anything.</li></ul>
+<p>The main design decision was to keep the language small. Doing syntax, semantics and code generation in one pass keeps the compiler short and lets every check see the exact token that caused it, which is what makes the diagnosis possible. The same decision also brings the main limitations described next.</p>
+
+<h2>16. Limitations and future work</h2>
+<table><tr><th>Limitation (today)</th><th>Planned work (from the original proposal)</th></tr>
+<tr><td>Only <code>int</code>, arithmetic and <code>print</code></td><td><code>if</code>/<code>else</code>, <code>while</code> and <code>for</code> loops; comparison and logical operators; <code>printf</code></td></tr>
+<tr><td>Stops at the first error</td><td>Error recovery to report several errors per run</td></tr>
+<tr><td>One implicit program, no functions</td><td>Functions and arrays; <code>char</code> and <code>float</code></td></tr>
+<tr><td>Values tracked at compile time (possible only without input or loops)</td><td>Data-flow analysis once loops and input exist</td></tr>
+<tr><td>TAC is the final output</td><td>Constant folding and other optimisations on TAC; an assembly back end</td></tr></table>
+
+<h2>17. Conclusion</h2>
+<p>ErrorBuddy shows that a small, hand-written compiler can cover every classic phase and still put the learner first. Treating each error as a structured object with a line, a phase, a message and a suggestion, and diagnosing errors by looking at the surrounding tokens, gives messages that point to the line where the fix belongs and say what to type. The project is tested automatically, measured against gcc, and published as a website where anyone can see it work.</p>
+
+<h2>18. References</h2>
+<ol><li>A. V. Aho, M. S. Lam, R. Sethi and J. D. Ullman, <i>Compilers: Principles, Techniques, and Tools</i>, 2nd ed., Addison-Wesley, 2006.</li>
+<li>V. I. Levenshtein, "Binary codes capable of correcting deletions, insertions, and reversals," <i>Soviet Physics Doklady</i>, vol. 10, no. 8, 1966.</li>
+<li>GCC, the GNU Compiler Collection, version 11.4. https://gcc.gnu.org/</li>
+<li>Emscripten documentation. https://emscripten.org/</li>
+<li>GitHub Pages and GitHub Actions documentation. https://docs.github.com/</li>
+<li>Project repository: https://github.com/Vardanp1/Compiler-Design-Project</li></ol>
+
+<h2 class="page">Appendix A: full source code</h2>
+<h3>A.1 <code>lexer.h</code> (48 lines)</h3><pre class="src">// lexer.h - Phase 1: Lexical Analysis
+//
+// The lexer (also called a scanner) reads the raw source text character by
+// character and groups the characters into TOKENS - the &quot;words&quot; of the
+// language, such as keywords, names, numbers and symbols.
+#ifndef LEXER_H
+#define LEXER_H
+
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// Every kind of token ErrorBuddy understands.
+enum class TokenType {
+    KW_INT,      // keyword &#x27;int&#x27;
+    KW_PRINT,    // keyword &#x27;print&#x27;
+    IDENTIFIER,  // variable name, e.g. score
+    NUMBER,      // integer literal, e.g. 42
+    PLUS, MINUS, STAR, SLASH,  // + - * /
+    ASSIGN,      // =
+    LPAREN,      // (
+    RPAREN,      // )
+    SEMICOLON,   // ;
+    END_OF_FILE  // marks the end of the token list
+};
+
+struct Token {
+    TokenType type;
+    std::string text;  // exact characters from the source
+    int line;          // line number where the token appears
+};
+
+// A friendly compiler error. Any phase can throw it; main.cpp catches it
+// and prints it in the ErrorBuddy format.
+struct CompileError {
+    int line;
+    std::string phase;       // which compiler phase found the problem
+    std::string message;     // what is wrong, in plain English
+    std::string suggestion;  // one concrete way to fix it
+};
+
+// Converts source text into a list of tokens (always ends with END_OF_FILE).
+// Throws CompileError on characters or numbers that are not valid.
+std::vector&lt;Token&gt; tokenize(const std::string&amp; source);
+
+// Human-readable name of a token type (used by the --tokens option).
+std::string tokenTypeName(TokenType type);
+
+#endif</pre><h3>A.2 <code>lexer.cpp</code> (114 lines)</h3><pre class="src">// lexer.cpp - Phase 1: Lexical Analysis
+#include &quot;lexer.h&quot;
+
+#include &lt;cctype&gt;
+#include &lt;climits&gt;
+
+std::string tokenTypeName(TokenType type) {
+    switch (type) {
+        case TokenType::KW_INT:      return &quot;KEYWORD&quot;;
+        case TokenType::KW_PRINT:    return &quot;KEYWORD&quot;;
+        case TokenType::IDENTIFIER:  return &quot;IDENTIFIER&quot;;
+        case TokenType::NUMBER:      return &quot;NUMBER&quot;;
+        case TokenType::PLUS:
+        case TokenType::MINUS:
+        case TokenType::STAR:
+        case TokenType::SLASH:       return &quot;OPERATOR&quot;;
+        case TokenType::ASSIGN:      return &quot;ASSIGN&quot;;
+        case TokenType::LPAREN:      return &quot;LPAREN&quot;;
+        case TokenType::RPAREN:      return &quot;RPAREN&quot;;
+        case TokenType::SEMICOLON:   return &quot;SEMICOLON&quot;;
+        case TokenType::END_OF_FILE: return &quot;EOF&quot;;
+    }
+    return &quot;UNKNOWN&quot;;
+}
+
+// The cast to unsigned char avoids undefined behaviour for non-ASCII bytes.
+static bool isLetter(char c) { return std::isalpha(static_cast&lt;unsigned char&gt;(c)) || c == &#x27;_&#x27;; }
+static bool isDigit(char c)  { return std::isdigit(static_cast&lt;unsigned char&gt;(c)) != 0; }
+
+std::vector&lt;Token&gt; tokenize(const std::string&amp; src) {
+    std::vector&lt;Token&gt; tokens;
+    int line = 1;
+    size_t i = 0;
+
+    while (i &lt; src.size()) {
+        char c = src[i];
+
+        // 1. Whitespace: skipped, but newlines advance the line counter.
+        if (c == &#x27;\n&#x27;) { line++; i++; continue; }
+        if (std::isspace(static_cast&lt;unsigned char&gt;(c))) { i++; continue; }
+
+        // 2. Comments: &#x27;//&#x27; until the end of the line are ignored.
+        if (c == &#x27;/&#x27; &amp;&amp; i + 1 &lt; src.size() &amp;&amp; src[i + 1] == &#x27;/&#x27;) {
+            while (i &lt; src.size() &amp;&amp; src[i] != &#x27;\n&#x27;) i++;
+            continue;
+        }
+
+        // 3. Integer literals: a run of digits.
+        if (isDigit(c)) {
+            size_t start = i;
+            long long value = 0;
+            bool tooBig = false;
+            while (i &lt; src.size() &amp;&amp; isDigit(src[i])) {
+                value = value * 10 + (src[i] - &#x27;0&#x27;);
+                if (value &gt; INT_MAX) { tooBig = true; value = INT_MAX; }  // stop growing, avoid overflow
+                i++;
+            }
+            // A digit immediately followed by a letter, e.g. &quot;2nd&quot;, is a bad name.
+            if (i &lt; src.size() &amp;&amp; isLetter(src[i])) {
+                while (i &lt; src.size() &amp;&amp; (isLetter(src[i]) || isDigit(src[i]))) i++;
+                throw CompileError{line, &quot;Lexical Analysis&quot;,
+                    &quot;&#x27;&quot; + src.substr(start, i - start) + &quot;&#x27; is not a valid name. Variable names cannot start with a digit.&quot;,
+                    &quot;Start the name with a letter, for example &#x27;value1&#x27; instead of &#x27;1value&#x27;.&quot;};
+            }
+            std::string text = src.substr(start, i - start);
+            if (tooBig) {
+                throw CompileError{line, &quot;Lexical Analysis&quot;,
+                    &quot;The number &quot; + text + &quot; is too large. An int can be at most &quot; + std::to_string(INT_MAX) + &quot;.&quot;,
+                    &quot;Use a smaller number.&quot;};
+            }
+            tokens.push_back({TokenType::NUMBER, text, line});
+            continue;
+        }
+
+        // 4. Identifiers and keywords: a letter or &#x27;_&#x27; followed by letters, digits or &#x27;_&#x27;.
+        if (isLetter(c)) {
+            size_t start = i;
+            while (i &lt; src.size() &amp;&amp; (isLetter(src[i]) || isDigit(src[i]))) i++;
+            std::string word = src.substr(start, i - start);
+            TokenType type = TokenType::IDENTIFIER;
+            if (word == &quot;int&quot;)   type = TokenType::KW_INT;
+            if (word == &quot;print&quot;) type = TokenType::KW_PRINT;
+            tokens.push_back({type, word, line});
+            continue;
+        }
+
+        // 5. Single-character symbols.
+        TokenType type;
+        switch (c) {
+            case &#x27;+&#x27;: type = TokenType::PLUS;      break;
+            case &#x27;-&#x27;: type = TokenType::MINUS;     break;
+            case &#x27;*&#x27;: type = TokenType::STAR;      break;
+            case &#x27;/&#x27;: type = TokenType::SLASH;     break;
+            case &#x27;=&#x27;: type = TokenType::ASSIGN;    break;
+            case &#x27;(&#x27;: type = TokenType::LPAREN;    break;
+            case &#x27;)&#x27;: type = TokenType::RPAREN;    break;
+            case &#x27;;&#x27;: type = TokenType::SEMICOLON; break;
+            default: {
+                // Anything else is a character the language does not know.
+                std::string shown = std::isprint(static_cast&lt;unsigned char&gt;(c))
+                    ? &quot;&#x27;&quot; + std::string(1, c) + &quot;&#x27;&quot;
+                    : &quot;a non-printable or non-English character&quot;;
+                throw CompileError{line, &quot;Lexical Analysis&quot;,
+                    &quot;Unknown symbol &quot; + shown + &quot;. ErrorBuddy only understands letters, digits and + - * / = ( ) ;&quot;,
+                    &quot;Remove the symbol or replace it with one of the supported symbols.&quot;};
+            }
+        }
+        tokens.push_back({type, std::string(1, c), line});
+        i++;
+    }
+
+    tokens.push_back({TokenType::END_OF_FILE, &quot;&quot;, line});
+    return tokens;
+}</pre><h3>A.3 <code>parser.h</code> (80 lines)</h3><pre class="src">// parser.h - Phases 2, 3 and 4: Syntax Analysis, Semantic Analysis and
+// Intermediate Code Generation.
+//
+// The parser walks through the tokens using RECURSIVE DESCENT: one C++
+// function per grammar rule. While it recognises each statement it also
+//   - checks the meaning of the statement (semantic analysis), and
+//   - emits three-address code for it (intermediate code generation).
+// Doing all three in one pass is called SYNTAX-DIRECTED TRANSLATION.
+#ifndef PARSER_H
+#define PARSER_H
+
+#include &quot;lexer.h&quot;
+
+#include &lt;map&gt;
+#include &lt;set&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// One entry in the symbol table.
+struct Symbol {
+    int declaredLine;  // where the variable was declared
+    long long value;   // its value at this point (used to spot division by zero)
+};
+
+class Parser {
+public:
+    explicit Parser(const std::vector&lt;Token&gt;&amp; tokens);
+
+    // Parses the whole program. Throws CompileError on the first problem.
+    void parseProgram();
+
+    const std::vector&lt;std::string&gt;&amp; code() const { return tac; }
+    const std::map&lt;std::string, Symbol&gt;&amp; symbols() const { return symbolTable; }
+    int statementCount() const { return statements; }
+
+private:
+    // The result of an expression: where its value lives in the TAC
+    // (&quot;5&quot;, &quot;x&quot; or a temporary like &quot;t1&quot;) and the value it has.
+    struct Operand {
+        std::string place;
+        long long value;
+    };
+
+    // Grammar rules - one function each.
+    void statement();
+    void declaration();
+    void assignment();
+    void printStatement();
+    Operand expression();
+    Operand term();
+    Operand factor();
+
+    // Helpers.
+    const Token&amp; peek() const { return tokens[pos]; }
+    const Token&amp; previous() const { return tokens[pos &gt; 0 ? pos - 1 : 0]; }
+    bool check(TokenType type) const { return peek().type == type; }
+    const Token&amp; advance();
+    void expectSemicolon();
+    Operand binary(const Operand&amp; left, const Token&amp; op, const Operand&amp; right);
+    std::string newTemp();
+    [[noreturn]] void factorError();
+    [[noreturn]] void unknownStatementError();
+    std::string similarVariable(const std::string&amp; name) const;
+
+    std::vector&lt;Token&gt; tokens;
+    size_t pos = 0;
+    int statements = 0;
+
+    std::map&lt;std::string, Symbol&gt; symbolTable;  // name -&gt; info
+    std::set&lt;std::string&gt; userNames;            // every identifier in the source
+    std::string declaring;                      // variable currently being declared
+
+    std::vector&lt;std::string&gt; tac;               // generated three-address code
+    int tempCount = 0;
+
+    int depth = 0;                              // current &#x27;(&#x27; nesting level
+    static const int MAX_DEPTH = 200;
+};
+
+#endif</pre><h3>A.4 <code>parser.cpp</code> (396 lines)</h3><pre class="src">// parser.cpp - Syntax Analysis, Semantic Analysis and Intermediate Code
+//
+// Grammar (each rule is one function below):
+//   program     -&gt; statement*
+//   statement   -&gt; declaration | assignment | printStmt
+//   declaration -&gt; &quot;int&quot; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+//   assignment  -&gt; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+//   printStmt   -&gt; &quot;print&quot; expression &quot;;&quot;
+//   expression  -&gt; term ((&quot;+&quot; | &quot;-&quot;) term)*
+//   term        -&gt; factor ((&quot;*&quot; | &quot;/&quot;) factor)*
+//   factor      -&gt; NUMBER | IDENTIFIER | &quot;(&quot; expression &quot;)&quot;
+//
+// Operator precedence comes from the grammar itself: &#x27;*&#x27; and &#x27;/&#x27; are handled
+// in term(), one level deeper than &#x27;+&#x27; and &#x27;-&#x27;, so they are grouped first.
+#include &quot;parser.h&quot;
+
+#include &lt;algorithm&gt;
+#include &lt;cctype&gt;
+#include &lt;climits&gt;
+
+static const char* SYNTAX   = &quot;Syntax Analysis&quot;;
+static const char* SEMANTIC = &quot;Semantic Analysis&quot;;
+
+[[noreturn]] static void fail(int line, const std::string&amp; phase, const std::string&amp; message,
+                 const std::string&amp; suggestion) {
+    throw CompileError{line, phase, message, suggestion};
+}
+
+// How a token is shown inside an error message.
+static std::string describe(const Token&amp; t) {
+    if (t.type == TokenType::END_OF_FILE) return &quot;the end of the file&quot;;
+    return &quot;&#x27;&quot; + t.text + &quot;&#x27;&quot;;
+}
+
+static bool isOperator(TokenType t) {
+    return t == TokenType::PLUS || t == TokenType::MINUS ||
+           t == TokenType::STAR || t == TokenType::SLASH;
+}
+
+// Edit distance: how many single-letter changes turn a into b.
+// Used to suggest &quot;Did you mean ...?&quot; for typos.
+static size_t editDistance(const std::string&amp; a, const std::string&amp; b) {
+    std::vector&lt;size_t&gt; row(b.size() + 1);
+    for (size_t j = 0; j &lt;= b.size(); j++) row[j] = j;
+    for (size_t i = 1; i &lt;= a.size(); i++) {
+        size_t diag = row[0];
+        row[0] = i;
+        for (size_t j = 1; j &lt;= b.size(); j++) {
+            size_t old = row[j];
+            row[j] = std::min({row[j] + 1, row[j - 1] + 1, diag + (a[i - 1] != b[j - 1])});
+            diag = old;
+        }
+    }
+    return row[b.size()];
+}
+
+// Names are &quot;similar&quot; if they differ by 1 letter (2 for longer names).
+static bool looksLike(const std::string&amp; word, const std::string&amp; target) {
+    size_t allowed = target.size() &lt;= 3 ? 1 : 2;
+    return word != target &amp;&amp; editDistance(word, target) &lt;= allowed;
+}
+
+Parser::Parser(const std::vector&lt;Token&gt;&amp; toks) : tokens(toks) {
+    for (const Token&amp; t : tokens)
+        if (t.type == TokenType::IDENTIFIER) userNames.insert(t.text);
+}
+
+const Token&amp; Parser::advance() {
+    const Token&amp; t = tokens[pos];
+    if (t.type != TokenType::END_OF_FILE) pos++;
+    return t;
+}
+
+// Temporaries are named t1, t2, ... skipping any name the programmer already
+// uses, so a temporary can never be confused with a real variable.
+std::string Parser::newTemp() {
+    std::string name;
+    do { name = &quot;t&quot; + std::to_string(++tempCount); } while (userNames.count(name));
+    return name;
+}
+
+std::string Parser::similarVariable(const std::string&amp; name) const {
+    for (const auto&amp; entry : symbolTable)  // very short names give silly hints, so skip them
+        if (entry.first.size() &gt;= 3 &amp;&amp; looksLike(name, entry.first)) return entry.first;
+    return &quot;&quot;;
+}
+
+// program -&gt; statement*
+void Parser::parseProgram() {
+    if (check(TokenType::END_OF_FILE))
+        fail(1, SYNTAX, &quot;The program is empty. There is nothing to compile.&quot;,
+             &quot;Write at least one statement, for example &#x27;int x = 5;&#x27;.&quot;);
+    while (!check(TokenType::END_OF_FILE)) {
+        statement();
+        statements++;
+    }
+}
+
+// statement -&gt; declaration | assignment | printStmt
+// We look at the first token to decide which rule applies.
+void Parser::statement() {
+    switch (peek().type) {
+        case TokenType::KW_INT:   declaration();    return;
+        case TokenType::KW_PRINT: printStatement(); return;
+        case TokenType::IDENTIFIER:
+            // tokens[pos + 1] exists: END_OF_FILE always follows an identifier.
+            if (tokens[pos + 1].type == TokenType::ASSIGN) { assignment(); return; }
+            unknownStatementError();
+        default:
+            unknownStatementError();
+    }
+}
+
+// declaration -&gt; &quot;int&quot; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+void Parser::declaration() {
+    advance();  // &#x27;int&#x27;
+    const Token&amp; name = peek();
+
+    if (name.type == TokenType::KW_INT || name.type == TokenType::KW_PRINT)
+        fail(name.line, SYNTAX, &quot;&#x27;&quot; + name.text + &quot;&#x27; is a reserved keyword and cannot be used as a variable name.&quot;,
+             &quot;Choose a different name, for example &#x27;value&#x27;.&quot;);
+    if (name.type != TokenType::IDENTIFIER)
+        fail(previous().line, SYNTAX, &quot;Expected a variable name after &#x27;int&#x27;, but found &quot; + describe(name) + &quot;.&quot;,
+             &quot;Write a name after &#x27;int&#x27;, for example &#x27;int count = 0;&#x27;.&quot;);
+    advance();
+
+    // Semantic check: a name may only be declared once.
+    auto existing = symbolTable.find(name.text);
+    if (existing != symbolTable.end())
+        fail(name.line, SEMANTIC, &quot;Variable &#x27;&quot; + name.text + &quot;&#x27; has already been declared (on line &quot; +
+             std::to_string(existing-&gt;second.declaredLine) + &quot;).&quot;,
+             &quot;Use a different variable name, or assign a new value with &#x27;&quot; + name.text + &quot; = ...;&#x27;.&quot;);
+
+    if (check(TokenType::SEMICOLON))
+        fail(name.line, SYNTAX, &quot;Variable &#x27;&quot; + name.text + &quot;&#x27; is declared without a starting value.&quot;,
+             &quot;Give it a value, for example &#x27;int &quot; + name.text + &quot; = 0;&#x27;.&quot;);
+    if (!check(TokenType::ASSIGN))
+        fail(name.line, SYNTAX, &quot;Expected &#x27;=&#x27; after &#x27;int &quot; + name.text + &quot;&#x27;, but found &quot; + describe(peek()) + &quot;.&quot;,
+             &quot;Write it as &#x27;int &quot; + name.text + &quot; = &lt;value&gt;;&#x27;.&quot;);
+    advance();  // &#x27;=&#x27;
+
+    declaring = name.text;
+    Operand value = expression();
+    declaring.clear();
+    expectSemicolon();
+
+    // Only now is the variable added to the symbol table, so it cannot be
+    // used inside its own initial value.
+    symbolTable[name.text] = {name.line, value.value};
+    tac.push_back(name.text + &quot; = &quot; + value.place);
+}
+
+// assignment -&gt; IDENTIFIER &quot;=&quot; expression &quot;;&quot;
+void Parser::assignment() {
+    const Token&amp; name = advance();
+
+    // Semantic check: you can only assign to a declared variable.
+    if (!symbolTable.count(name.text)) {
+        std::string similar = similarVariable(name.text);
+        if (!similar.empty())
+            fail(name.line, SEMANTIC, &quot;Variable &#x27;&quot; + name.text + &quot;&#x27; has not been declared.&quot;,
+                 &quot;Did you mean &#x27;&quot; + similar + &quot;&#x27;? If &#x27;&quot; + name.text + &quot;&#x27; is a new variable, write &#x27;int &quot; +
+                 name.text + &quot; = ...;&#x27;.&quot;);
+        fail(name.line, SEMANTIC, &quot;Variable &#x27;&quot; + name.text + &quot;&#x27; has not been declared.&quot;,
+             &quot;Declare it by adding &#x27;int&#x27; in front: &#x27;int &quot; + name.text + &quot; = ...;&#x27;.&quot;);
+    }
+
+    advance();  // &#x27;=&#x27;
+    Operand value = expression();
+    expectSemicolon();
+
+    symbolTable[name.text].value = value.value;
+    tac.push_back(name.text + &quot; = &quot; + value.place);
+}
+
+// printStmt -&gt; &quot;print&quot; expression &quot;;&quot;
+void Parser::printStatement() {
+    advance();  // &#x27;print&#x27;
+    if (check(TokenType::SEMICOLON))
+        fail(peek().line, SYNTAX, &quot;&#x27;print&#x27; needs something to print.&quot;,
+             &quot;Write a variable or expression after &#x27;print&#x27;, for example &#x27;print x;&#x27;.&quot;);
+    Operand value = expression();
+    expectSemicolon();
+    tac.push_back(&quot;print &quot; + value.place);
+}
+
+// expression -&gt; term ((&quot;+&quot; | &quot;-&quot;) term)*
+// The loop makes the operators LEFT-associative: a - b - c = (a - b) - c.
+Parser::Operand Parser::expression() {
+    Operand left = term();
+    while (check(TokenType::PLUS) || check(TokenType::MINUS)) {
+        const Token&amp; op = advance();
+        Operand right = term();
+        left = binary(left, op, right);
+    }
+    return left;
+}
+
+// term -&gt; factor ((&quot;*&quot; | &quot;/&quot;) factor)*
+Parser::Operand Parser::term() {
+    Operand left = factor();
+    while (check(TokenType::STAR) || check(TokenType::SLASH)) {
+        const Token&amp; op = advance();
+        Operand right = factor();
+        left = binary(left, op, right);
+    }
+    return left;
+}
+
+// factor -&gt; NUMBER | IDENTIFIER | &quot;(&quot; expression &quot;)&quot;
+Parser::Operand Parser::factor() {
+    const Token&amp; t = peek();
+
+    if (t.type == TokenType::NUMBER) {
+        advance();
+        return {t.text, std::stoll(t.text)};  // the lexer already checked the range
+    }
+
+    if (t.type == TokenType::IDENTIFIER) {
+        advance();
+        auto it = symbolTable.find(t.text);
+        if (it != symbolTable.end()) return {t.text, it-&gt;second.value};
+
+        // Semantic check failed: the variable is not in the symbol table.
+        if (t.text == declaring)
+            fail(t.line, SEMANTIC, &quot;Variable &#x27;&quot; + t.text + &quot;&#x27; is used in its own declaration, before it has a value.&quot;,
+                 &quot;Give it a starting value that does not use &#x27;&quot; + t.text + &quot;&#x27;, for example &#x27;int &quot; + t.text + &quot; = 0;&#x27;.&quot;);
+        std::string similar = similarVariable(t.text);
+        if (!similar.empty())
+            fail(t.line, SEMANTIC, &quot;Variable &#x27;&quot; + t.text + &quot;&#x27; has not been declared.&quot;,
+                 &quot;Did you mean &#x27;&quot; + similar + &quot;&#x27;? Otherwise declare it first using &#x27;int &quot; + t.text + &quot; = 0;&#x27;.&quot;);
+        fail(t.line, SEMANTIC, &quot;Variable &#x27;&quot; + t.text + &quot;&#x27; has not been declared.&quot;,
+             &quot;Declare it using &#x27;int &quot; + t.text + &quot; = 0;&#x27; before this line.&quot;);
+    }
+
+    if (t.type == TokenType::LPAREN) {
+        const Token&amp; open = advance();
+        // Each &#x27;(&#x27; makes the parser call itself again; a limit keeps
+        // absurdly deep nesting from overflowing the call stack.
+        if (++depth &gt; MAX_DEPTH)
+            fail(open.line, SYNTAX, &quot;Parentheses are nested too deeply (more than &quot; + std::to_string(MAX_DEPTH) + &quot; levels).&quot;,
+                 &quot;Split the expression into smaller statements using extra variables.&quot;);
+        Operand inner = expression();
+        if (!check(TokenType::RPAREN))
+            fail(previous().line, SYNTAX, &quot;Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line &quot; + std::to_string(open.line) + &quot;.&quot;,
+                 &quot;Add &#x27;)&#x27; after &quot; + describe(previous()) + &quot;.&quot;);
+        advance();  // &#x27;)&#x27;
+        depth--;
+        return inner;  // parentheses only group; they produce no code
+    }
+
+    factorError();
+}
+
+// Generates one TAC instruction &quot;temp = left op right&quot;.
+// The value is also computed so that division by zero and overflow can be
+// caught at compile time (the language has no input or loops, so every value is
+// known while compiling).
+Parser::Operand Parser::binary(const Operand&amp; left, const Token&amp; op, const Operand&amp; right) {
+    long long result = 0;
+    switch (op.type) {
+        case TokenType::PLUS:  result = left.value + right.value; break;
+        case TokenType::MINUS: result = left.value - right.value; break;
+        case TokenType::STAR:  result = left.value * right.value; break;
+        case TokenType::SLASH:
+            if (right.value == 0) {
+                std::string why;
+                if (std::isdigit(static_cast&lt;unsigned char&gt;(right.place[0])))
+                    why = &quot;You are dividing by the number 0.&quot;;
+                else if (symbolTable.count(right.place))
+                    why = &quot;Variable &#x27;&quot; + right.place + &quot;&#x27; is 0 at this point, so dividing by it is impossible.&quot;;
+                else
+                    why = &quot;The expression on the right of &#x27;/&#x27; works out to 0.&quot;;
+                fail(op.line, SEMANTIC, &quot;Division by zero. &quot; + why,
+                     &quot;Make sure the value on the right of &#x27;/&#x27; is not zero.&quot;);
+            }
+            result = left.value / right.value;
+            break;
+        default: break;
+    }
+    if (result &gt; INT_MAX || result &lt; INT_MIN)
+        fail(op.line, SEMANTIC, &quot;The result of &#x27;&quot; + op.text + &quot;&#x27; here is too large to fit in an int.&quot;,
+             &quot;Use smaller numbers. An int must be between &quot; + std::to_string(INT_MIN) + &quot; and &quot; +
+             std::to_string(INT_MAX) + &quot;.&quot;);
+
+    std::string temp = newTemp();
+    tac.push_back(temp + &quot; = &quot; + left.place + &quot; &quot; + op.text + &quot; &quot; + right.place);
+    return {temp, result};
+}
+
+// Called at the end of every statement. If the &#x27;;&#x27; is missing we try to
+// work out WHY, to give the most helpful message.
+void Parser::expectSemicolon() {
+    if (check(TokenType::SEMICOLON)) { advance(); return; }
+    const Token&amp; t = peek();
+    const Token&amp; prev = previous();
+
+    if (t.type == TokenType::RPAREN)
+        fail(t.line, SYNTAX, &quot;Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.&quot;,
+             &quot;Remove the extra &#x27;)&#x27; or add a matching &#x27;(&#x27; earlier.&quot;);
+    if (t.type == TokenType::ASSIGN)
+        fail(t.line, SYNTAX, &quot;Unexpected &#x27;=&#x27;. A statement can contain only one &#x27;=&#x27; (and there is no &#x27;==&#x27;).&quot;,
+             &quot;Split it into separate statements, one assignment each.&quot;);
+    if ((t.type == TokenType::IDENTIFIER || t.type == TokenType::NUMBER || t.type == TokenType::LPAREN) &amp;&amp;
+        t.line == prev.line)
+        fail(t.line, SYNTAX, &quot;Missing operator between &quot; + describe(prev) + &quot; and &quot; + describe(t) + &quot;.&quot;,
+             &quot;Put an operator such as &#x27;+&#x27; or &#x27;*&#x27; between them, or end the statement with &#x27;;&#x27;.&quot;);
+
+    // Report the line where the &#x27;;&#x27; should have been, not the next line.
+    fail(prev.line, SYNTAX, &quot;Expected &#x27;;&#x27; at the end of the statement.&quot;,
+         &quot;Add a semicolon after &quot; + describe(prev) + &quot;.&quot;);
+}
+
+// Called when a value (number, variable or &#x27;(&#x27;) was expected but not found.
+void Parser::factorError() {
+    const Token&amp; t = peek();
+    const Token&amp; prev = previous();
+    bool afterOperator = isOperator(prev.type);
+
+    switch (t.type) {
+        case TokenType::END_OF_FILE:
+            fail(prev.line, SYNTAX, &quot;The program ended in the middle of an expression.&quot;,
+                 &quot;Finish the expression and end the statement with &#x27;;&#x27;.&quot;);
+        case TokenType::SEMICOLON:
+            if (prev.type == TokenType::ASSIGN)
+                fail(t.line, SYNTAX, &quot;Missing value after &#x27;=&#x27;.&quot;,
+                     &quot;Write a value after &#x27;=&#x27;, for example &#x27;x = 5;&#x27;.&quot;);
+            if (afterOperator)
+                fail(t.line, SYNTAX, &quot;The operator &#x27;&quot; + prev.text + &quot;&#x27; has no value on its right side.&quot;,
+                     &quot;Add a number or variable after &#x27;&quot; + prev.text + &quot;&#x27;, or remove the &#x27;&quot; + prev.text + &quot;&#x27;.&quot;);
+            break;
+        case TokenType::RPAREN:
+            if (prev.type == TokenType::LPAREN)
+                fail(t.line, SYNTAX, &quot;Empty parentheses &#x27;()&#x27; are not allowed.&quot;,
+                     &quot;Put an expression inside them, for example &#x27;(a + 1)&#x27;.&quot;);
+            if (afterOperator)
+                fail(t.line, SYNTAX, &quot;The operator &#x27;&quot; + prev.text + &quot;&#x27; has no value on its right side.&quot;,
+                     &quot;Add a number or variable between &#x27;&quot; + prev.text + &quot;&#x27; and &#x27;)&#x27;.&quot;);
+            break;
+        case TokenType::MINUS:
+            if (!afterOperator)
+                fail(t.line, SYNTAX, &quot;Negative numbers such as &#x27;-5&#x27; are not supported directly.&quot;,
+                     &quot;Write it as a subtraction, for example &#x27;0 - 5&#x27;.&quot;);
+            [[fallthrough]];
+        case TokenType::PLUS:
+        case TokenType::STAR:
+        case TokenType::SLASH:
+            if (afterOperator)
+                fail(t.line, SYNTAX, &quot;Two operators in a row: &#x27;&quot; + prev.text + &quot;&#x27; followed by &#x27;&quot; + t.text + &quot;&#x27;.&quot;,
+                     &quot;Remove one of them, or put a number or variable between them.&quot;);
+            fail(t.line, SYNTAX, &quot;An expression cannot start with the operator &#x27;&quot; + t.text + &quot;&#x27;.&quot;,
+                 &quot;Put a number or variable before &#x27;&quot; + t.text + &quot;&#x27;.&quot;);
+        case TokenType::KW_INT:
+        case TokenType::KW_PRINT:
+            fail(prev.line, SYNTAX, &quot;Expected a value after &quot; + describe(prev) + &quot;, but found the keyword &#x27;&quot; +
+                 t.text + &quot;&#x27;.&quot;,
+                 &quot;Finish the expression and end the statement with &#x27;;&#x27;.&quot;);
+        case TokenType::ASSIGN:
+            fail(t.line, SYNTAX, &quot;Unexpected &#x27;=&#x27;. This language has no &#x27;==&#x27; and allows only one &#x27;=&#x27; per statement.&quot;,
+                 &quot;Remove the extra &#x27;=&#x27;.&quot;);
+        default: break;
+    }
+    fail(t.line, SYNTAX, &quot;Expected a number, a variable or &#x27;(&#x27; but found &quot; + describe(t) + &quot;.&quot;,
+         &quot;Check the expression, for example &#x27;a + (b * 2)&#x27;.&quot;);
+}
+
+// Called when a statement does not start with &#x27;int&#x27;, &#x27;print&#x27; or &#x27;name =&#x27;.
+void Parser::unknownStatementError() {
+    const Token&amp; t = peek();
+
+    if (t.type == TokenType::IDENTIFIER) {
+        const Token&amp; next = tokens[pos + 1];
+        // A misspelled keyword, e.g. &#x27;prnt x;&#x27; or &#x27;Int a = 5;&#x27;
+        for (const std::string kw : {&quot;int&quot;, &quot;print&quot;}) {
+            std::string lower = t.text;
+            std::transform(lower.begin(), lower.end(), lower.begin(),
+                           [](unsigned char c) { return static_cast&lt;char&gt;(std::tolower(c)); });
+            if (lower == kw || looksLike(t.text, kw))
+                fail(t.line, SYNTAX, &quot;Unknown word &#x27;&quot; + t.text + &quot;&#x27;.&quot;,
+                     &quot;Did you mean the keyword &#x27;&quot; + kw + &quot;&#x27;? Keywords are lowercase and followed by a space.&quot;);
+        }
+        if (next.type == TokenType::SEMICOLON)
+            fail(t.line, SYNTAX, &quot;&#x27;&quot; + t.text + &quot;&#x27; on its own is not a complete statement.&quot;,
+                 &quot;To display it write &#x27;print &quot; + t.text + &quot;;&#x27;. To change it write &#x27;&quot; + t.text + &quot; = &lt;value&gt;;&#x27;.&quot;);
+        fail(t.line, SYNTAX, &quot;Expected &#x27;=&#x27; after &#x27;&quot; + t.text + &quot;&#x27;, but found &quot; + describe(next) + &quot;.&quot;,
+             &quot;To assign a value, write &#x27;&quot; + t.text + &quot; = &lt;expression&gt;;&#x27;.&quot;);
+    }
+    if (t.type == TokenType::SEMICOLON)
+        fail(t.line, SYNTAX, &quot;Found an extra &#x27;;&#x27; with no statement before it.&quot;,
+             &quot;Remove the extra &#x27;;&#x27;.&quot;);
+    if (t.type == TokenType::ASSIGN)
+        fail(t.line, SYNTAX, &quot;Missing variable name before &#x27;=&#x27;.&quot;,
+             &quot;Write the variable name first, for example &#x27;x = 5;&#x27;.&quot;);
+    fail(t.line, SYNTAX, &quot;A statement cannot start with &quot; + describe(t) + &quot;.&quot;,
+         &quot;Start the statement with &#x27;int&#x27;, &#x27;print&#x27; or a variable name.&quot;);
+}</pre><h3>A.5 <code>main.cpp</code> (88 lines)</h3><pre class="src">// main.cpp - ErrorBuddy driver
+//
+// Reads a source file, runs the compiler phases in order and prints either
+// the generated three-address code or a friendly error explanation.
+//
+// Usage: ./errorbuddy &lt;file&gt; [--tokens]
+#include &quot;lexer.h&quot;
+#include &quot;parser.h&quot;
+
+#include &lt;fstream&gt;
+#include &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;sstream&gt;
+
+static void printTokens(const std::vector&lt;Token&gt;&amp; tokens) {
+    std::cout &lt;&lt; &quot;Tokens (output of the lexer):\n&quot;;
+    std::cout &lt;&lt; &quot;  &quot; &lt;&lt; std::left &lt;&lt; std::setw(6) &lt;&lt; &quot;Line&quot; &lt;&lt; std::setw(12) &lt;&lt; &quot;Type&quot; &lt;&lt; &quot;Text\n&quot;;
+    for (const Token&amp; t : tokens) {
+        if (t.type == TokenType::END_OF_FILE) break;
+        std::cout &lt;&lt; &quot;  &quot; &lt;&lt; std::setw(6) &lt;&lt; t.line &lt;&lt; std::setw(12) &lt;&lt; tokenTypeName(t.type) &lt;&lt; t.text &lt;&lt; &quot;\n&quot;;
+    }
+    std::cout &lt;&lt; &quot;\n&quot;;
+}
+
+int main(int argc, char* argv[]) {
+    std::string path;
+    bool showTokens = false;
+    for (int i = 1; i &lt; argc; i++) {
+        std::string arg = argv[i];
+        if (arg == &quot;--tokens&quot;) showTokens = true;
+        else path = arg;
+    }
+    if (path.empty()) {
+        std::cout &lt;&lt; &quot;Usage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot; &lt;source-file&gt; [--tokens]\n&quot;;
+        return 2;
+    }
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file) {
+        std::cout &lt;&lt; &quot;ErrorBuddy could not open the file &#x27;&quot; &lt;&lt; path &lt;&lt; &quot;&#x27;.\n&quot;
+                  &lt;&lt; &quot;Suggestion: Check the file name and path.\n&quot;;
+        return 2;
+    }
+    std::stringstream buffer;
+    buffer &lt;&lt; file.rdbuf();
+
+    std::cout &lt;&lt; &quot;ErrorBuddy - compiling &quot; &lt;&lt; path &lt;&lt; &quot;\n\n&quot;;
+
+    try {
+        // Phase 1: Lexical analysis
+        std::vector&lt;Token&gt; tokens = tokenize(buffer.str());
+        if (showTokens) printTokens(tokens);
+
+        // Phases 2-4: Syntax analysis, semantic analysis, code generation
+        Parser parser(tokens);
+        parser.parseProgram();
+
+        // Reaching this point means every phase succeeded.
+        std::cout &lt;&lt; &quot;Compilation successful!\n\n&quot;;
+
+        std::cout &lt;&lt; &quot;Intermediate Code (Three-Address Code):\n&quot;;
+        for (const std::string&amp; line : parser.code()) std::cout &lt;&lt; &quot;    &quot; &lt;&lt; line &lt;&lt; &quot;\n&quot;;
+
+        std::cout &lt;&lt; &quot;\nSymbol Table:\n&quot;;
+        for (const auto&amp; entry : parser.symbols())
+            std::cout &lt;&lt; &quot;    &quot; &lt;&lt; std::left &lt;&lt; std::setw(12) &lt;&lt; entry.first
+                      &lt;&lt; &quot;int   (declared on line &quot; &lt;&lt; entry.second.declaredLine &lt;&lt; &quot;)\n&quot;;
+
+        std::cout &lt;&lt; &quot;\nPhases completed:\n&quot;
+                  &lt;&lt; &quot;    [OK] 1. Lexical Analysis    - &quot; &lt;&lt; tokens.size() - 1 &lt;&lt; &quot; tokens\n&quot;
+                  &lt;&lt; &quot;    [OK] 2. Syntax Analysis     - &quot; &lt;&lt; parser.statementCount() &lt;&lt; &quot; statements\n&quot;
+                  &lt;&lt; &quot;    [OK] 3. Semantic Analysis   - &quot; &lt;&lt; parser.symbols().size() &lt;&lt; &quot; variables, no errors\n&quot;
+                  &lt;&lt; &quot;    [OK] 4. Intermediate Code   - &quot; &lt;&lt; parser.code().size() &lt;&lt; &quot; instructions\n&quot;;
+        return 0;
+    } catch (const CompileError&amp; e) {
+        // Phase 5: ErrorBuddy&#x27;s friendly error explanation.
+        std::cout &lt;&lt; &quot;Error on line &quot; &lt;&lt; e.line &lt;&lt; &quot;:\n&quot;
+                  &lt;&lt; e.message &lt;&lt; &quot;\n&quot;
+                  &lt;&lt; &quot;Suggestion: &quot; &lt;&lt; e.suggestion &lt;&lt; &quot;\n\n&quot;
+                  &lt;&lt; &quot;(Found during: &quot; &lt;&lt; e.phase &lt;&lt; &quot;)\n&quot;
+                  &lt;&lt; &quot;Compilation stopped. No intermediate code was generated.\n&quot;;
+        return 1;
+    } catch (const std::exception&amp; e) {
+        // Should never happen; reported clearly instead of crashing.
+        std::cout &lt;&lt; &quot;Internal compiler error: &quot; &lt;&lt; e.what() &lt;&lt; &quot;\n&quot;;
+        return 3;
+    }
+}</pre><h3>A.6 <code>Makefile</code> (45 lines)</h3><pre class="src"># Makefile for ErrorBuddy
+#   make              build the compiler
+#   make run          compile examples/valid.txt
+#   make run FILE=x   compile another file
+#   make test         run every example and compare with the expected output
+#   make web          start the web playground on http://localhost:8795
+#   make clean        remove build files
+
+CXX      = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O2
+TARGET   = errorbuddy
+OBJS     = main.o lexer.o parser.o
+FILE    ?= examples/valid.txt
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
+
+%.o: %.cpp lexer.h parser.h
+	$(CXX) $(CXXFLAGS) -c $&lt;
+
+run: $(TARGET)
+	./$(TARGET) $(FILE)
+
+test: $(TARGET)
+	@pass=0; fail=0; \
+	for f in examples/*.txt; do \
+		expected=examples/expected/$$(basename $$f .txt).out; \
+		if ./$(TARGET) $$f | diff -u $$expected - &gt; /dev/null; then \
+			echo &quot;PASS  $$f&quot;; pass=$$((pass + 1)); \
+		else \
+			echo &quot;FAIL  $$f  (see: ./$(TARGET) $$f | diff $$expected -)&quot;; fail=$$((fail + 1)); \
+		fi; \
+	done; \
+	echo &quot;$$pass passed, $$fail failed&quot;; \
+	[ $$fail -eq 0 ]
+
+web: $(TARGET)
+	python3 web/server.py
+
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+.PHONY: all run test web clean</pre>
+
+<h2 class="page">Appendix B: example programs and expected outputs</h2>
+<p>Left: the program. Right: the expected output stored in <code>examples/expected/</code>, which <code>make test</code> compares against.</p>
+<h3>B.1 <code>examples/division_by_zero.txt</code></h3><div class="two"><pre class="">int a = 10;
+int zero = a - 10;
+int b = a / zero;
+print b;</pre><pre class="">ErrorBuddy - compiling examples/division_by_zero.txt
+
+Error on line 3:
+Division by zero. Variable &#x27;zero&#x27; is 0 at this point, so dividing by it is impossible.
+Suggestion: Make sure the value on the right of &#x27;/&#x27; is not zero.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.2 <code>examples/duplicate_declaration.txt</code></h3><div class="two"><pre class="">int age = 18;
+int year = 2026;
+print age;
+int age = 19;</pre><pre class="">ErrorBuddy - compiling examples/duplicate_declaration.txt
+
+Error on line 4:
+Variable &#x27;age&#x27; has already been declared (on line 1).
+Suggestion: Use a different variable name, or assign a new value with &#x27;age = ...;&#x27;.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.3 <code>examples/empty.txt</code></h3><div class="two"><pre class=""></pre><pre class="">ErrorBuddy - compiling examples/empty.txt
+
+Error on line 1:
+The program is empty. There is nothing to compile.
+Suggestion: Write at least one statement, for example &#x27;int x = 5;&#x27;.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.4 <code>examples/extra_parenthesis.txt</code></h3><div class="two"><pre class="">int a = 5;
+int b = (a + 2)) * 3;
+print b;</pre><pre class="">ErrorBuddy - compiling examples/extra_parenthesis.txt
+
+Error on line 2:
+Found an extra &#x27;)&#x27; that has no matching &#x27;(&#x27;.
+Suggestion: Remove the extra &#x27;)&#x27; or add a matching &#x27;(&#x27; earlier.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.5 <code>examples/incorrect_parentheses.txt</code></h3><div class="two"><pre class="">int x = 2;
+int y = (x + 3 * 4;
+print y;</pre><pre class="">ErrorBuddy - compiling examples/incorrect_parentheses.txt
+
+Error on line 2:
+Missing &#x27;)&#x27; to close the &#x27;(&#x27; opened on line 2.
+Suggestion: Add &#x27;)&#x27; after &#x27;4&#x27;.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.6 <code>examples/invalid_expression.txt</code></h3><div class="two"><pre class="">int x = 4;
+int y = x + * 3;
+print y;</pre><pre class="">ErrorBuddy - compiling examples/invalid_expression.txt
+
+Error on line 2:
+Two operators in a row: &#x27;+&#x27; followed by &#x27;*&#x27;.
+Suggestion: Remove one of them, or put a number or variable between them.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.7 <code>examples/missing_semicolon.txt</code></h3><div class="two"><pre class="">int a = 5;
+int b = 10
+print a + b;</pre><pre class="">ErrorBuddy - compiling examples/missing_semicolon.txt
+
+Error on line 2:
+Expected &#x27;;&#x27; at the end of the statement.
+Suggestion: Add a semicolon after &#x27;10&#x27;.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.8 <code>examples/precedence.txt</code></h3><div class="two"><pre class="">int a = 5;
+int b = 10;
+int c = a + b * 2;
+print c;</pre><pre class="">ErrorBuddy - compiling examples/precedence.txt
+
+Compilation successful!
+
+Intermediate Code (Three-Address Code):
+    a = 5
+    b = 10
+    t1 = b * 2
+    t2 = a + t1
+    c = t2
+    print c
+
+Symbol Table:
+    a           int   (declared on line 1)
+    b           int   (declared on line 2)
+    c           int   (declared on line 3)
+
+Phases completed:
+    [OK] 1. Lexical Analysis    - 22 tokens
+    [OK] 2. Syntax Analysis     - 4 statements
+    [OK] 3. Semantic Analysis   - 3 variables, no errors
+    [OK] 4. Intermediate Code   - 6 instructions</pre></div><h3>B.9 <code>examples/undeclared_variable.txt</code></h3><div class="two"><pre class="">int total = 50;
+total = total + marks;
+print total;</pre><pre class="">ErrorBuddy - compiling examples/undeclared_variable.txt
+
+Error on line 2:
+Variable &#x27;marks&#x27; has not been declared.
+Suggestion: Declare it using &#x27;int marks = 0;&#x27; before this line.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.</pre></div><h3>B.10 <code>examples/valid.txt</code></h3><div class="two"><pre class="">// A valid ErrorBuddy program
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);</pre><pre class="">ErrorBuddy - compiling examples/valid.txt
+
+Compilation successful!
+
+Intermediate Code (Three-Address Code):
+    age = 20
+    score = 10
+    t1 = age * 2
+    t2 = score + t1
+    score = t2
+    t3 = score - 5
+    t4 = t3 / 5
+    bonus = t4
+    print score
+    t5 = age + 1
+    t6 = bonus * t5
+    print t6
+
+Symbol Table:
+    age         int   (declared on line 2)
+    bonus       int   (declared on line 5)
+    score       int   (declared on line 3)
+
+Phases completed:
+    [OK] 1. Lexical Analysis    - 41 tokens
+    [OK] 2. Syntax Analysis     - 6 statements
+    [OK] 3. Semantic Analysis   - 3 variables, no errors
+    [OK] 4. Intermediate Code   - 12 instructions</pre></div>
+</body></html>

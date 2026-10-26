@@ -1,0 +1,4 @@
+int a = 10;
+int zero = a - 10;
+int b = a / zero;
+print b;

@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/extra_parenthesis.txt
+
+Error on line 2:
+Found an extra ')' that has no matching '('.
+Suggestion: Remove the extra ')' or add a matching '(' earlier.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.

@@ -1,0 +1,17 @@
+sequenceDiagram
+    actor Student
+    participant UI as web/index.html
+    participant Server as web/server.py
+    participant Compiler as ./errorbuddy
+    Student->>UI: open http://localhost:8795
+    UI->>Server: GET /api/examples
+    Server-->>UI: example programs from examples/
+    Student->>UI: type or pick an example
+    UI->>UI: wait 350 ms after the last key
+    UI->>Server: POST /api/compile with source
+    Server->>Server: reject over 64 KB, write temp file
+    Server->>Compiler: run temp file with --tokens, 5 s timeout
+    Compiler-->>Server: stdout text and exit code
+    Server->>Server: regex the text into tokens, error, tac, symbols, phases
+    Server-->>UI: JSON result
+    UI-->>Student: highlight error line, phase strip, TAC or suggestion

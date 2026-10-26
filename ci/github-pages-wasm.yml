@@ -1,0 +1,55 @@
+# Optional GitHub Actions deployment: builds ErrorBuddy, runs the tests, compiles the
+# same C++ to WebAssembly and publishes the site. To use it, move this file to
+# .github/workflows/ and set Settings -> Pages -> Source to "GitHub Actions".
+# (Pushing a workflow file needs a token with the "workflow" scope.)
+name: Test and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test (native g++)
+        run: make && make test
+
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.74
+
+      - name: Assemble the site
+        run: python3 site/build_site.py
+
+      - name: Compile the compiler to WebAssembly
+        run: |
+          em++ -std=c++17 -O2 -fexceptions main.cpp lexer.cpp parser.cpp -o _site/errorbuddy.js \
+            -sMODULARIZE=1 -sEXPORT_NAME=createErrorBuddy -sINVOKE_RUN=0 -sEXIT_RUNTIME=0 \
+            -sFORCE_FILESYSTEM=1 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sALLOW_MEMORY_GROWTH=1
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

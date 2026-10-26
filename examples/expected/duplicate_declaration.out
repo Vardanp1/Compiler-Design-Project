@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/duplicate_declaration.txt
+
+Error on line 4:
+Variable 'age' has already been declared (on line 1).
+Suggestion: Use a different variable name, or assign a new value with 'age = ...;'.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.

@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/division_by_zero.txt
+
+Error on line 3:
+Division by zero. Variable 'zero' is 0 at this point, so dividing by it is impossible.
+Suggestion: Make sure the value on the right of '/' is not zero.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.

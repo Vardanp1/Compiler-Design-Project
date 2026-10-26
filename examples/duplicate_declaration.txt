@@ -1,0 +1,4 @@
+int age = 18;
+int year = 2026;
+print age;
+int age = 19;

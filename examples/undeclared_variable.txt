@@ -1,0 +1,3 @@
+int total = 50;
+total = total + marks;
+print total;

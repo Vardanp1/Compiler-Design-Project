@@ -1,0 +1,21 @@
+================================================================
+L1 comment rule after '/'
+source: int a = 10 / 2; // half of ten | print a; | 
+  shipped  tokens: int a = 10 / 2 ; print a ;
+           result: OK
+  variant  tokens: int a = 10 / 2 ; / / half of ten print a ;
+           result: Error on line 1: A statement cannot start with '/'.
+================================================================
+L2 no digit-then-letter rule
+source: int 2nd = 5; | print 2nd; | 
+  shipped  tokens: (lexer stopped)
+           result: Error on line 1: '2nd' is not a valid name. Variable names cannot start with a digit.
+  variant  tokens: int 2 nd = 5 ; print 2 nd ;
+           result: Error on line 1: Expected a variable name after 'int', but found '2'.
+================================================================
+L3 keyword matched as prefix
+source: int interest = 5; | int printer = 2; | print interest + printer; | 
+  shipped  tokens: int interest = 5 ; int printer = 2 ; print interest + printer ;
+           result: OK
+  variant  tokens: int int erest = 5 ; int print er = 2 ; print int erest + print er ;
+           result: Error on line 1: 'int' is a reserved keyword and cannot be used as a variable name.

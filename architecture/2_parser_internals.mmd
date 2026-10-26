@@ -1,0 +1,49 @@
+flowchart TD
+    START["parseProgram()"] --> EMPTY{"First token<br>is EOF?"}
+    EMPTY -->|yes| ERR0["throw: the program is empty"]
+    EMPTY -->|no| STMT["statement()"]
+
+    STMT --> KIND{"Which token<br>starts it?"}
+    KIND -->|int| DECL["declaration()"]
+    KIND -->|"name then ="| ASSIGN["assignment()"]
+    KIND -->|print| PRINT["printStatement()"]
+    KIND -->|anything else| ERR4["unknownStatementError()<br>misspelled keyword, lone name,<br>extra ; , missing name before ="]
+
+    DECL --> DCHK{"Valid new name<br>followed by = ?"}
+    DCHK -->|no| ERR1["throw: keyword used as name,<br>already declared on line N,<br>no starting value"]
+    ASSIGN --> ACHK{"Name in<br>symbol table?"}
+    ACHK -->|no| ERR2["throw: not declared<br>+ Did you mean ...? hint"]
+    PRINT --> PCHK{"Something<br>to print?"}
+    PCHK -->|no| ERR3["throw: print needs a value"]
+
+    DCHK -->|yes| EXPR["expression()<br>term(), then loop on + and -"]
+    ACHK -->|yes| EXPR
+    PCHK -->|yes| EXPR
+    EXPR --> TERM["term()<br>factor(), then loop on * and /"]
+    TERM --> FACTOR{"factor():<br>token type?"}
+
+    FACTOR -->|NUMBER| OPND["Operand<br>place in TAC + known value"]
+    FACTOR -->|IDENTIFIER| DECLQ{"Declared?"}
+    DECLQ -->|yes| OPND
+    DECLQ -->|no| ERR5["throw: used in its own declaration,<br>or not declared + Did you mean"]
+    FACTOR -->|"("| PAREN["depth + 1, max 200<br>expression() again, expect )"]
+    PAREN -->|ok| OPND
+    PAREN -->|"no )"| ERR6["throw: missing ) for the (<br>opened on line N"]
+    FACTOR -->|other| ERR7["factorError()<br>two operators in a row, -5,<br>empty ( ), keyword inside expression"]
+
+    OPND --> OPQ{"Operator<br>next?"}
+    OPQ -->|"yes, loop"| BIN["binary(left, op, right)<br>check divide by 0 and int range,<br>newTemp(), emit t1 = a op b"]
+    BIN -->|next operand| TERM
+    BIN -->|"bad value"| ERR8["throw: division by zero<br>or int overflow"]
+    OPQ -->|no| SEMI["expectSemicolon()"]
+
+    SEMI -->|"; found"| SAVE["Update symbol table<br>emit x = place or print place"]
+    SEMI -->|missing| ERR9["Diagnose: extra ), extra =,<br>missing operator, or missing ;<br>on the previous token's line"]
+    SAVE --> MORE{"More<br>tokens?"}
+    MORE -->|yes| STMT
+    MORE -->|no| DONE["Success: TAC and symbol table<br>return to main.cpp"]
+
+    classDef err fill:#fde8e6,stroke:#d9534f,color:#5a1a14
+    classDef ok fill:#e6f6ec,stroke:#3a9d5d,color:#123d22
+    class ERR0,ERR1,ERR2,ERR3,ERR4,ERR5,ERR6,ERR7,ERR8,ERR9 err
+    class DONE ok

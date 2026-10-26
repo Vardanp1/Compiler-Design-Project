@@ -1,0 +1,7 @@
+// A valid ErrorBuddy program
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);

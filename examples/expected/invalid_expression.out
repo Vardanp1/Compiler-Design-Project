@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/invalid_expression.txt
+
+Error on line 2:
+Two operators in a row: '+' followed by '*'.
+Suggestion: Remove one of them, or put a number or variable between them.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.

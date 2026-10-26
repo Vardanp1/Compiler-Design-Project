@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/undeclared_variable.txt
+
+Error on line 2:
+Variable 'marks' has not been declared.
+Suggestion: Declare it using 'int marks = 0;' before this line.
+
+(Found during: Semantic Analysis)
+Compilation stopped. No intermediate code was generated.

@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/missing_semicolon.txt
+
+Error on line 2:
+Expected ';' at the end of the statement.
+Suggestion: Add a semicolon after '10'.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.

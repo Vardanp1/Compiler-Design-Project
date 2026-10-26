@@ -1,0 +1,28 @@
+ErrorBuddy - compiling examples/valid.txt
+
+Compilation successful!
+
+Intermediate Code (Three-Address Code):
+    age = 20
+    score = 10
+    t1 = age * 2
+    t2 = score + t1
+    score = t2
+    t3 = score - 5
+    t4 = t3 / 5
+    bonus = t4
+    print score
+    t5 = age + 1
+    t6 = bonus * t5
+    print t6
+
+Symbol Table:
+    age         int   (declared on line 2)
+    bonus       int   (declared on line 5)
+    score       int   (declared on line 3)
+
+Phases completed:
+    [OK] 1. Lexical Analysis    - 41 tokens
+    [OK] 2. Syntax Analysis     - 6 statements
+    [OK] 3. Semantic Analysis   - 3 variables, no errors
+    [OK] 4. Intermediate Code   - 12 instructions

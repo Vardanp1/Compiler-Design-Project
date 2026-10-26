@@ -1,0 +1,31 @@
+policy   rule                                           right wrong missed silent-ok
+k1       1 edit, all names                                 10     8      3         3
+shipped  1 edit if <=3 letters else 2, skip names <3       12     6      1         5
+k2       2 edits, all names                                13     9      0         2
+k3       3 edits, all names                                13    10      0         1
+
+typo   expect        k1 shipped      k2      k3
+scroe  score          -   score   score   score
+totl   total      total   total   total   total
+cuont  count          -   count   count   count
+avrage average  average average average average
+averge average  average average average average
+reslt  result    result  result  result  result
+totals total      total   total   total   total
+numbr  number    number  number  number  number
+conter counter  counter counter counter counter
+salry  salary    salary  salary  salary  salary
+sun    sum          sum     sum     sum     sum
+mx     max          max     max     max     max
+aeg    age            -       -     age     age
+z      -              x       -       x       x
+c      -              a       -       a       a
+sum2   -            sum     sum     sum     sum
+tax    -              -       -       -   total
+store  -          score   score   score   score
+height -              -       -       -       -
+dry    -            day     day     day     day
+date   -           rate    rate    rate    rate
+values -          value   value   value   value
+min    -              -       -     max     max
+fast   -           last   first   first   first

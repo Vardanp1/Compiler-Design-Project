@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ErrorBuddy Playground</title>
+<script src="errorbuddy.js"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%2317191e%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%23ff7a6b%22 font-family=%22monospace%22%3E;%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f5f3ee; --card: #ffffff; --ink: #1c1e22; --muted: #6b6f78; --line: #e2ded5;
+  --editor: #17191e; --editor-ink: #e7e9ee; --gutter: #5d6370; --band: rgba(255, 107, 90, .16);
+  --err: #d9483b; --err-soft: #fdecea; --ok: #237a52; --ok-soft: #e4f3ea; --tip: #fff6dc; --tip-line: #e8c55a;
+  --accent: #2f5fd0;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101216; --card: #191c22; --ink: #e8eaef; --muted: #9298a4; --line: #2a2e36;
+    --editor: #0b0d10; --err-soft: #3a1d1b; --ok-soft: #15301f; --tip: #2f2914; --tip-line: #8a7428;
+    --ok: #4fbf86; --err: #ff7a6b; --accent: #7aa2ff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 22px 20px 40px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.brand h1 { font: 600 30px/1 "Fraunces", Georgia, serif; margin: 0; letter-spacing: -.01em; }
+.brand h1 span { color: var(--err); }
+.brand p { margin: 6px 0 0; color: var(--muted); }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.examples label { color: var(--muted); font-size: 13px; margin-right: 2px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 13px var(--sans);
+        padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.ok::before { content: "●"; color: var(--ok); margin-right: 5px; font-size: 10px; }
+.chip.bad::before { content: "●"; color: var(--err); margin-right: 5px; font-size: 10px; }
+
+main { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } .editor { height: 300px; } }
+
+/* editor */
+.editor-card { background: var(--editor); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 8px 24px rgba(20,20,30,.12); }
+.editor-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; color: #9aa1ad; font: 12.5px var(--mono); border-bottom: 1px solid #262a32; }
+.editor-bar .dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #3a3f49; margin-right: 6px; }
+.run { background: #e7e9ee; color: #17191e; border: 0; border-radius: 7px; padding: 6px 12px; font: 500 13px var(--sans); cursor: pointer; }
+.run:hover { background: #fff; }
+.run kbd { font: 11px var(--mono); opacity: .6; margin-left: 6px; }
+.editor { position: relative; display: grid; grid-template-columns: 46px 1fr; height: 430px; font: 14px/22px var(--mono); }
+.gutter { color: var(--gutter); text-align: right; padding: 12px 10px 12px 0; overflow: hidden; user-select: none; }
+.gutter div.bad { color: var(--err); font-weight: 500; }
+.code { position: relative; overflow: hidden; }
+.bands, textarea { position: absolute; inset: 0; padding: 12px 14px 12px 6px; margin: 0; }
+.bands { pointer-events: none; overflow: hidden; }
+.bands div { position: absolute; left: 0; right: 0; height: 22px; background: var(--band); border-left: 3px solid var(--err); }
+textarea { width: 100%; height: 100%; resize: none; border: 0; outline: none; background: transparent; color: var(--editor-ink);
+           font: inherit; caret-color: #ffd36b; white-space: pre; overflow: auto; tab-size: 4; }
+textarea::selection { background: #34507f; }
+.status { display: flex; justify-content: space-between; padding: 8px 14px; border-top: 1px solid #262a32; color: #8a919d; font: 12px var(--mono); }
+
+/* result */
+.panel { display: flex; flex-direction: column; gap: 14px; }
+.pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.stage { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-size: 12.5px; color: var(--muted); }
+.stage b { display: block; font-weight: 500; color: var(--ink); font-size: 13px; }
+.stage.done { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.stage.done b::before { content: "✓ "; color: var(--ok); }
+.stage.fail { border-color: var(--err); background: var(--err-soft); }
+.stage.fail b::before { content: "✕ "; color: var(--err); }
+.stage.skip { opacity: .55; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+.err-head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.pill { font: 500 12px var(--mono); padding: 2px 8px; border-radius: 6px; background: var(--err-soft); color: var(--err); }
+.err-msg { font: 600 21px/1.35 var(--sans); margin: 10px 0 14px; letter-spacing: -.005em; }
+.tip { background: var(--tip); border-left: 3px solid var(--tip-line); border-radius: 0 8px 8px 0; padding: 10px 14px; }
+.tip small { display: block; text-transform: uppercase; letter-spacing: .08em; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.snippet { margin-top: 14px; font: 13px/1.6 var(--mono); background: var(--paper); border-radius: 8px; padding: 8px 0; overflow-x: auto; }
+.snippet div { padding: 0 12px; white-space: pre; }
+.snippet div.hit { background: var(--err-soft); }
+.snippet span { color: var(--muted); display: inline-block; width: 2.2em; }
+.link { background: none; border: 0; color: var(--accent); cursor: pointer; font: inherit; padding: 0; }
+
+.ok-head { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ok); }
+.ok-head .pill { background: var(--ok-soft); color: var(--ok); }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 14px 0 12px; }
+.tab { background: none; border: 0; padding: 7px 12px; font: 500 13.5px var(--sans); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab.on { color: var(--ink); border-color: var(--ink); }
+.tac { font: 14px/1.75 var(--mono); counter-reset: n; margin: 0; padding: 0; list-style: none; }
+.tac li { counter-increment: n; }
+.tac li::before { content: counter(n); color: var(--muted); display: inline-block; width: 2.4em; font-size: 12px; }
+.tac .t { color: var(--accent); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+td.m { font-family: var(--mono); }
+pre.raw { font: 12.5px/1.55 var(--mono); white-space: pre-wrap; margin: 0; color: var(--ink); }
+.scroll { max-height: 300px; overflow: auto; }
+.empty { color: var(--muted); }
+
+.ref { margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.ref .card { padding: 14px 16px; font-size: 13.5px; }
+.ref h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+.ref code { font: 12.5px var(--mono); background: var(--paper); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Error<span>Buddy</span></h1>
+      <p>A beginner compiler that explains its errors: the right line, plain words, one concrete fix. <a href="./" style="color:var(--accent)">Project home</a></p>
+    </div>
+    <div class="examples" id="examples"><label>Try:</label></div>
+  </header>
+
+  <main>
+    <section class="editor-card">
+      <div class="editor-bar">
+        <span class="dots"><i></i><i></i><i></i> program.txt</span>
+        <button class="run" id="run">Compile <kbd>Ctrl ↵</kbd></button>
+      </div>
+      <div class="editor">
+        <div class="gutter" id="gutter"></div>
+        <div class="code">
+          <div class="bands" id="bands"></div>
+          <textarea id="src" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Program source"></textarea>
+        </div>
+      </div>
+      <div class="status"><span id="pos">Ln 1, Col 1</span><span id="state">compiles as you type</span></div>
+    </section>
+
+    <section class="panel">
+      <div class="pipeline" id="pipeline"></div>
+      <div class="card" id="result"><p class="empty">Write a program, or pick an example above.</p></div>
+    </section>
+  </main>
+
+  <section class="ref">
+    <div class="card"><h3>Statements</h3>
+      <code>int age = 20;</code> declare (needs a value)<br>
+      <code>age = age + 1;</code> assign<br>
+      <code>print age * 2;</code> print an expression</div>
+    <div class="card"><h3>Expressions</h3>
+      <code>+ - * /</code> with normal precedence and <code>( )</code>.<br>
+      Integer division: <code>7 / 2</code> is 3. Write <code>0 - 5</code> for −5.</div>
+    <div class="card"><h3>Rules</h3>
+      Every statement ends with <code>;</code>. Only <code>int</code>.<br>
+      <code>//</code> starts a comment. Compilation stops at the first error.</div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const src = $("src"), gutter = $("gutter"), bands = $("bands");
+const LINE = 22, PAD = 12;
+const STAGES = [
+  ["Lexical", "Lexical Analysis", "tokens"],
+  ["Syntax", "Syntax Analysis", "grammar"],
+  ["Semantic", "Semantic Analysis", "meaning"],
+  ["TAC", null, "intermediate code"],
+];
+let errLine = 0, timer = 0, seq = 0, tab = "tac", last = null;
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function paintGutter() {
+  const n = src.value.split("\n").length;
+  gutter.innerHTML = Array.from({ length: n }, (_, i) =>
+    `<div class="${i + 1 === errLine ? "bad" : ""}">${i + 1}</div>`).join("");
+  bands.innerHTML = errLine ? `<div style="top:${PAD + (errLine - 1) * LINE}px"></div>` : "";
+  syncScroll();
+}
+function syncScroll() {
+  gutter.scrollTop = src.scrollTop;
+  bands.style.transform = `translateY(${-src.scrollTop}px)`;
+}
+function caret() {
+  const before = src.value.slice(0, src.selectionStart).split("\n");
+  $("pos").textContent = `Ln ${before.length}, Col ${before.at(-1).length + 1}`;
+}
+
+function pipeline(r) {
+  let failAt = 99;
+  if (r && r.error) failAt = STAGES.findIndex(s => s[1] === r.error.phase);
+  $("pipeline").innerHTML = STAGES.map(([name, , what], i) => {
+    const cls = !r ? "" : i < failAt ? "done" : i === failAt ? "fail" : "skip";
+    return `<div class="stage ${cls}"><b>${name}</b>${what}</div>`;
+  }).join("");
+}
+
+function render(r) {
+  last = r;
+  errLine = r.error ? r.error.line : 0;
+  paintGutter();
+  pipeline(r);
+  const box = $("result");
+  if (r.detail) { box.innerHTML = `<p class="empty">${esc(r.detail)}</p>`; return; }
+  if (r.error) {
+    const e = r.error, lines = src.value.split("\n");
+    const from = Math.max(1, e.line - 1), to = Math.min(lines.length, e.line + 1);
+    let snip = "";
+    for (let i = from; i <= to; i++)
+      snip += `<div class="${i === e.line ? "hit" : ""}"><span>${i}</span>${esc(lines[i - 1] || " ")}</div>`;
+    box.innerHTML = `
+      <div class="err-head"><span class="pill">Error · line ${e.line}</span>found during ${esc(e.phase)}
+        <button class="link" id="jump">go to line →</button></div>
+      <div class="err-msg">${esc(e.message)}</div>
+      <div class="tip"><small>Suggestion</small>${esc(e.suggestion)}</div>
+      <div class="snippet">${snip}</div>`;
+    $("jump").onclick = () => jumpTo(e.line);
+    $("state").textContent = "1 error, no code generated";
+    return;
+  }
+  const tabs = [["tac", "Three-address code"], ["symbols", "Symbol table"], ["tokens", "Tokens"], ["raw", "Raw output"]];
+  box.innerHTML = `
+    <div class="ok-head"><span class="pill">exit 0</span>Compilation successful</div>
+    <div class="tabs">${tabs.map(([k, l]) => `<button class="tab ${k === tab ? "on" : ""}" data-k="${k}">${l}</button>`).join("")}</div>
+    <div class="scroll" id="view"></div>`;
+  box.querySelectorAll(".tab").forEach(b => b.onclick = () => { tab = b.dataset.k; render(last); });
+  const view = $("view");
+  if (tab === "tac")
+    view.innerHTML = `<ol class="tac">${r.tac.map(l => `<li>${esc(l).replace(/\bt\d+\b/g, m => `<span class="t">${m}</span>`)}</li>`).join("")}</ol>`;
+  else if (tab === "symbols")
+    view.innerHTML = `<table><tr><th>Name</th><th>Type</th><th>Declared</th></tr>${r.symbols.map(s =>
+      `<tr><td class="m">${esc(s.name)}</td><td class="m">int</td><td>line ${s.line}</td></tr>`).join("")}</table>`;
+  else if (tab === "tokens")
+    view.innerHTML = `<table><tr><th>Line</th><th>Type</th><th>Text</th></tr>${r.tokens.map(t =>
+      `<tr><td>${t.line}</td><td class="m">${esc(t.type)}</td><td class="m">${esc(t.text || "")}</td></tr>`).join("")}</table>`;
+  else view.innerHTML = `<pre class="raw">${esc(r.raw)}</pre>`;
+  $("state").textContent = `${r.tac.length} instructions · ${r.symbols.length} variables`;
+}
+
+function jumpTo(line) {
+  const lines = src.value.split("\n");
+  const start = lines.slice(0, line - 1).join("\n").length + (line > 1 ? 1 : 0);
+  src.focus();
+  src.setSelectionRange(start, start + lines[line - 1].length);
+  src.scrollTop = Math.max(0, (line - 4) * LINE);
+  caret();
+}
+
+// GitHub Pages build: the real C++ compiler, compiled to WebAssembly with Emscripten.
+// parseOutput() mirrors compile_source() in web/server.py.
+function parseOutput(out, exit) {
+  const r = { ok: exit === 0, exit, raw: out };
+  const tokens = out.match(/Tokens \(output of the lexer\):\n.*?\n((?:  .*\n)*)/);
+  r.tokens = tokens ? tokens[1].split("\n").filter(Boolean).map(ln => {
+    const [line, type, ...text] = ln.trim().split(/\s+/);
+    return { line, type, text: text.join(" ") };
+  }) : [];
+  const err = out.match(/Error on line (\d+):\n(.*)\nSuggestion: (.*)\n\n\(Found during: (.*)\)/);
+  if (err) r.error = { line: +err[1], message: err[2], suggestion: err[3], phase: err[4] };
+  const section = title => out.match(new RegExp(title + ":\\n((?:    .*\\n?)*)"));
+  const tac = section("Intermediate Code \\(Three-Address Code\\)"), sym = section("Symbol Table"), ph = section("Phases completed");
+  r.tac = tac ? tac[1].split("\n").map(l => l.trim()).filter(Boolean) : [];
+  r.symbols = sym ? [...sym[1].matchAll(/^\s+(\S+)\s+int\s+\(declared on line (\d+)\)/gm)].map(m => ({ name: m[1], line: +m[2] })) : [];
+  r.phases = ph ? ph[1].split("\n").map(l => l.trim()).filter(Boolean) : [];
+  return r;
+}
+
+let lines = [], modulePromise = null;
+function loadCompiler() {
+  modulePromise ||= createErrorBuddy({ print: t => lines.push(t), printErr: t => lines.push(t) });
+  return modulePromise;
+}
+
+// Without the WebAssembly build (errorbuddy.js), the page shows the real
+// compiler output recorded for each example program in examples.json.
+let recorded = [];
+function compileRecorded(id) {
+  const hit = recorded.find(e => e.source.replace(/\n$/, "") === src.value.replace(/\n$/, ""));
+  if (id !== seq) return;
+  if (hit) render(parseOutput(hit.output, hit.exit));
+  else render({ detail: "This page is showing recorded compiler output for the example programs. To compile your own code, clone the repository and run 'make web' (local playground), or './errorbuddy file.txt'." });
+}
+
+async function compile() {
+  const id = ++seq;
+  $("state").textContent = "compiling…";
+  if (typeof createErrorBuddy === "undefined") return compileRecorded(id);
+  try {
+    const M = await loadCompiler();
+    M.FS.writeFile("/program.txt", src.value);
+    lines = [];
+    const exit = M.callMain(["/program.txt", "--tokens"]);
+    const r = parseOutput(lines.join("\n") + "\n", exit);
+    if (id === seq) render(r);
+  } catch (e) {
+    modulePromise = null;
+    if (id === seq) render({ detail: "The compiler could not run in this browser: " + e });
+  }
+}
+
+src.addEventListener("input", () => { paintGutter(); clearTimeout(timer); timer = setTimeout(compile, 350); });
+src.addEventListener("scroll", syncScroll);
+["keyup", "click"].forEach(ev => src.addEventListener(ev, caret));
+src.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); clearTimeout(timer); compile(); }
+  if (e.key === "Tab") { e.preventDefault(); src.setRangeText("    ", src.selectionStart, src.selectionEnd, "end"); paintGutter(); }
+});
+$("run").onclick = () => { clearTimeout(timer); compile(); };
+
+fetch("examples.json").then(r => r.json()).then(list => {
+  recorded = list;
+  const ex = $("examples");
+  const ok = new Set(["valid", "precedence"]);
+  list.sort((a, b) => ok.has(b.name) - ok.has(a.name));
+  list.forEach(({ name, source }) => {
+    const b = document.createElement("button");
+    b.className = "chip " + (ok.has(name) ? "ok" : "bad");
+    b.textContent = name.replace(/_/g, " ");
+    b.onclick = () => { src.value = source.replace(/\n$/, ""); tab = "tac"; paintGutter(); compile(); };
+    ex.appendChild(b);
+  });
+  const first = list.find(e => e.name === "missing_semicolon") || list[0];
+  src.value = first.source.replace(/\n$/, "");
+  paintGutter(); compile();
+});
+pipeline(null);
+paintGutter();
+</script>
+</body>
+</html>

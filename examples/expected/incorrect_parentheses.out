@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/incorrect_parentheses.txt
+
+Error on line 2:
+Missing ')' to close the '(' opened on line 2.
+Suggestion: Add ')' after '4'.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.

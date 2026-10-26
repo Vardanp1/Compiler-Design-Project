@@ -1,0 +1,7 @@
+*.o
+/errorbuddy
+_site/
+deck/node_modules/
+__pycache__/
+case_study/build/
+/_site/

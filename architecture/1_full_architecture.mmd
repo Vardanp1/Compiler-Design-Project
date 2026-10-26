@@ -1,0 +1,110 @@
+flowchart TD
+    USER["Student / user"]
+    BUILD["Makefile: make<br>g++ -std=c++17 -Wall -Wextra -O2<br>main.cpp + lexer.cpp + parser.cpp -> ./errorbuddy"]
+
+    subgraph ENTRY["Ways to run the compiler"]
+        E_CLI["Terminal<br>./errorbuddy program.txt --tokens<br>or make run FILE=..."]
+        E_TEST["make test<br>runs every examples/*.txt"]
+        E_WEB["web/index.html in the browser<br>recompiles 350 ms after typing"]
+        E_SRV["web/server.py on :8795<br>POST /api/compile: write temp file,<br>run ./errorbuddy --tokens, 5 s timeout"]
+        E_STUDY["case_study/run_study.py<br>24 labelled mistakes from corpus.py,<br>same mistakes also sent to gcc"]
+    end
+
+    subgraph DRIVER["main.cpp - start"]
+        D1["main(argc, argv)<br>read file path and --tokens flag"]
+        D2{"File given<br>and opened?"}
+        D3["Print usage or cannot-open message<br>exit code 2"]
+        D4["Read the whole file into one string<br>enter the try block"]
+    end
+
+    subgraph LEXER["lexer.h + lexer.cpp - Phase 1: Lexical Analysis"]
+        L1["tokenize(source)<br>scan one character at a time"]
+        L2["Skip spaces and // comments<br>count newlines to know the line"]
+        L3["Group characters into tokens:<br>NUMBER, IDENTIFIER, keywords int and print,<br>symbols + - * / = ( ) ;"]
+        L4["Token list: type, text, line<br>ends with END_OF_FILE"]
+    end
+
+    subgraph PARSER["parser.h + parser.cpp - Phases 2, 3 and 4 in one pass"]
+        P1["Parser(tokens)<br>remember every user name"]
+        P2["parseProgram()<br>reject empty file, then statement() until EOF"]
+        P3["Phase 2 Syntax: statement()<br>declaration(), assignment(), printStatement()"]
+        P4["Phase 2 Syntax: expression() -> term() -> factor()<br>recursive descent, * / bind tighter than + -"]
+        P5[("Phase 3 Semantic: symbol table<br>map name -> declared line, current value")]
+        P6["Phase 4 TAC: binary(left, op, right)<br>compute value, newTemp(), emit t1 = a op b"]
+        P7[("TAC list<br>three-address code in source order")]
+    end
+
+    subgraph ERRORS["Phase 5: ErrorBuddy error engine (parser.cpp + lexer.h)"]
+        X1["Typo hints<br>editDistance(), looksLike(), similarVariable()<br>Did you mean ...?"]
+        X2["Cause diagnosis<br>expectSemicolon(), factorError(),<br>unknownStatementError()"]
+        X3["CompileError thrown<br>line, phase, message, suggestion"]
+    end
+
+    subgraph OUTPUT["main.cpp - results"]
+        D5["printTokens()<br>token table, only with --tokens"]
+        D6["Success: Compilation successful<br>TAC, symbol table, phase summary<br>exit code 0"]
+        D7["catch CompileError<br>Error on line N, message, Suggestion, phase<br>no TAC shown, exit code 1"]
+        D8["stdout text + exit code"]
+    end
+
+    subgraph READERS["Who reads the output"]
+        R1["Terminal<br>student reads the result"]
+        R2["make test<br>diff with examples/expected/*.out<br>PASS or FAIL"]
+        R3["server.py turns the text into JSON<br>index.html highlights the error line,<br>phase strip, TAC and symbols"]
+        R4["run_study.py writes out_*.txt<br>make_case_study.py builds the case study PDF"]
+    end
+
+    USER -->|make| BUILD
+    USER --> E_CLI
+    USER --> E_TEST
+    USER --> E_WEB
+    USER --> E_STUDY
+    E_WEB -->|source as JSON| E_SRV
+    BUILD -->|binary| D1
+    E_CLI --> D1
+    E_TEST --> D1
+    E_SRV --> D1
+    E_STUDY --> D1
+
+    D1 --> D2
+    D2 -->|no| D3
+    D2 -->|yes| D4
+    D4 -->|"step 1: source string"| L1
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 -->|"step 2: tokens"| P1
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P4 -->|"look up and add names"| P5
+    P4 --> P6
+    P6 --> P7
+    P3 -->|"emit x = t1 or print t2"| P7
+    P7 -->|"step 3: every statement passed"| D6
+    L4 -.->|"--tokens"| D5
+
+    L3 -.->|"unknown symbol, 2nd, number too big"| X3
+    P3 -.->|"missing ; or bad start"| X2
+    P4 -.->|"missing value or ), undeclared name"| X2
+    P6 -.->|"division by zero, int overflow"| X3
+    P5 -->|declared names| X1
+    X1 -->|suggestion| X2
+    X2 -->|throw| X3
+    X3 -.->|"caught once in main"| D7
+
+    D3 --> D8
+    D5 --> D8
+    D6 --> D8
+    D7 --> D8
+    D8 --> R1
+    D8 --> R2
+    D8 --> R3
+    D8 --> R4
+
+    classDef err fill:#fde8e6,stroke:#d9534f,color:#5a1a14
+    classDef ok fill:#e6f6ec,stroke:#3a9d5d,color:#123d22
+    classDef store fill:#eef2fb,stroke:#5b7bd5,color:#1b2b55
+    class X1,X2,X3,D7,D3 err
+    class D6 ok
+    class P5,P7 store

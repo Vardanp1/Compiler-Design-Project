@@ -1,0 +1,177 @@
+ERRORBUDDY: PITCH FOR FACULTY
+(about 2-3 minutes when spoken)
+
+------------------------------------------------------------
+1. THE PROBLEM (hook)
+------------------------------------------------------------
+When beginners make a small mistake in C, like forgetting a
+semicolon:
+
+    3   int a = 5;
+    4   int b = 10
+    5   printf("%d", a + b);
+
+gcc says:
+
+    program.c:5:5: error: expected ',' or ';' before 'printf'
+
+The mistake was really on line 4. The message uses grammar words
+like "expected" and "before", and it does not say how to fix it.
+Students lose a lot of time on messages like this.
+
+------------------------------------------------------------
+2. OUR IDEA
+------------------------------------------------------------
+ErrorBuddy is a compiler for beginner C, which we will build in
+C++17. It goes through all the standard compiler phases and
+produces three-address code (TAC) as its intermediate code.
+
+What makes it different is the error reporting. Every error is a
+structured object with four fields:
+  - the line where the fix belongs
+  - the phase that found it (lexical, syntax or semantic)
+  - a plain-English message
+  - one concrete suggestion for fixing it
+
+So for the same missing semicolon, ErrorBuddy says:
+
+    Error on line 4:
+    Expected ';' at the end of the statement.
+    Suggestion: Add a semicolon after '10'.
+
+------------------------------------------------------------
+3. THE LANGUAGE: BEGINNER C
+------------------------------------------------------------
+We support the part of C that students learn first: int variables,
+arithmetic, comparison and logical operators, if/else, while and
+for loops, printf, and { } blocks inside main().
+
+Leaving out pointers, structs and the full preprocessor lets us
+implement every phase properly and focus on the error messages.
+Every valid program is still real C that gcc accepts.
+
+The grammar (simplified) builds precedence into its rules:
+  statement  -> declaration | assignment | if | while | for | printf | block
+  if         -> 'if' '(' expression ')' statement ('else' statement)?
+  expression -> term (('+' | '-') term)*
+  term       -> factor (('*' | '/' | '%') factor)*
+
+------------------------------------------------------------
+4. HOW IT WORKS (the technical part)
+------------------------------------------------------------
+Phase 1, Lexical analysis:
+  A hand-written scanner reads the source one character at a time
+  and produces C tokens: keywords (int, if, while, for, return),
+  identifiers, numbers, string literals and operators such as
+  == != <= && ||. Every token stores its line number, which makes
+  accurate error lines possible later. It skips // and /* */
+  comments and #include lines, and rejects symbols like '@', names
+  like '2nd', and unterminated strings or comments.
+
+Phase 2, Syntax analysis:
+  A recursive-descent parser with one C++ function per grammar
+  rule. expression() calls term(), and term() calls factor(), so
+  * / % bind tighter than + and - without needing a precedence
+  table. The while loops in each function make operators
+  left-associative, so 10 - 4 - 3 = (10 - 4) - 3. An else always
+  attaches to the nearest if, as the C standard says.
+
+Phase 3, Semantic analysis:
+  A scoped symbol table (a stack of maps, one per { } block)
+  catches undeclared variables, a variable declared twice in the
+  same block, a variable used before it is given a value, division
+  by a constant zero, and printf calls where the number of %d does
+  not match the number of values.
+
+Phase 4, Intermediate code generation:
+  Expressions become instructions like t1 = b * 2. Conditions and
+  loops become labels and jumps:
+
+      if (a > b) max = a;          t1 = a > b
+      else max = b;          ->    ifFalse t1 goto L1
+                                   max = a
+                                   goto L2
+                               L1: max = b
+                               L2:
+
+  Phases 2, 3 and 4 run together in a single pass (syntax-directed
+  translation). The TAC is only printed if the whole program is
+  correct.
+
+Phase 5, The ErrorBuddy error engine:
+  Instead of a generic "syntax error", the parser looks at the
+  tokens around the problem to diagnose the likely cause of classic
+  beginner C mistakes, e.g.
+    - "did you mean '=='? '=' stores a value"   (if (x = 5))
+    - "missing '}' for the '{' opened on line 3"
+    - "printf has %d but no value to print"
+  For misspelled names it uses Levenshtein edit distance, so
+  "prinft" gets "Did you mean 'printf'?" and "retrun" gets
+  "Did you mean the keyword 'return'?".
+
+------------------------------------------------------------
+5. HOW WE WILL BUILD AND TEST IT
+------------------------------------------------------------
+Order of work: fix the C subset and its grammar, then the lexer,
+parser, scoped symbol table checks, TAC generation, the error
+engine, and finally tests.
+Tools: C++17 with only the standard library, g++, and a Makefile.
+Testing: a sample .c program for every error type, each with its
+expected output, checked automatically by "make test". Valid
+samples are also compiled with gcc to confirm they are real C.
+
+------------------------------------------------------------
+6. SCOPE AND FUTURE WORK
+------------------------------------------------------------
+Kept simple on purpose: int only (no pointers, arrays or structs),
+everything inside main(), only #include lines from the
+preprocessor, and compilation stops at the first error.
+Next steps: user-defined functions and arrays, error recovery so
+several errors are reported in one run, more types such as char
+and float, simple optimisations like constant folding, and a web
+playground for students.
+
+------------------------------------------------------------
+ONE-LINE SUMMARY
+------------------------------------------------------------
+"ErrorBuddy is a complete small compiler for beginner C, from
+lexer to three-address code, whose main contribution is error
+messages that teach: the right line, plain words, and a concrete
+fix."
+
+------------------------------------------------------------
+LIKELY FACULTY QUESTIONS (quick answers)
+------------------------------------------------------------
+Q: Why not support all of C?
+A: Full C (pointers, structs, the preprocessor, the type system) is
+   far too large for one semester. We picked the part beginners
+   actually write, which is also where they hit the most confusing
+   errors.
+
+Q: gcc already has warnings. What is new?
+A: gcc only warns about some of these (e.g. '=' in a condition) and
+   phrases them in compiler terms. ErrorBuddy points to the line
+   where the fix goes, explains the rule, and gives a concrete fix.
+
+Q: Why recursive descent and not Yacc/Bison?
+A: Our grammar is LL(1), so recursive descent works well. Writing it
+   by hand gives us full control over each error message, which is
+   the main goal. Generated parsers give generic errors.
+
+Q: Why three-address code?
+A: It is the standard intermediate form in compiler textbooks. Each
+   instruction has at most one operator, and control flow becomes
+   simple jumps, so it is easy to translate to assembly or optimise.
+
+Q: How do you handle variable scope?
+A: A stack of symbol tables. Entering { pushes a new table, leaving }
+   pops it. Lookups search from the innermost table outward.
+
+Q: How is the error line made accurate?
+A: Every token carries its line number. For a missing ';' we report
+   the line of the last token of the statement, not the next token.
+
+Q: What is edit distance?
+A: The smallest number of single-letter insertions, deletions or
+   substitutions that turn one word into another. We suggest the
+   closest declared name or keyword if it is close enough.

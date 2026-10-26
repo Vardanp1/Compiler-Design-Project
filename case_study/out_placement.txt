@@ -1,0 +1,29 @@
+case mistake                                    fix    G    D    E   gcc kind
+M01  missing ; (next line is print)               2   3*   3*    2   error
+M02  missing ; (blank line + comment after)       2   5*   5*    2   error
+M03  missing ; (next line is assignment)          2   3*   3*    2   error
+M04  missing ; on last statement                  3    3    3    3   error
+M05  missing )                                    2    2    2    2   error
+M06  missing ) (expression split over lines)      3    3    3    3   error
+M07  extra )                                      2    2    2    2   error
+M08  two operators in a row                       2    2    2    2   error
+M09  operator with no right operand               2    2    2    2   error
+M10  missing operator between values              3    3    3    3   error
+M11  missing value after =                        2    2    2    2   error
+M12  empty parentheses                            2    2    2    2   error
+M13  undeclared variable                          2    2    2    2   error
+M14  misspelled variable                          3    3    3    3   error
+M15  misspelled print keyword                     2    2    2    2   warning
+M16  duplicate declaration                        4    4    4    4   error
+M17  variable used in its own declaration         1    1    1    1   warning
+M18  division by literal 0                        2    2    2    2   warning
+M19  division by a variable that is 0             3    -    3    3   none
+M20  division by an expression that is 0          1    1    1    1   warning
+M21  arithmetic overflow                          1    1    1    1   warning
+M22  literal too large for int                    1    1    1    1   warning
+M23  unknown symbol                               2    2    2    2   error
+M24  name starts with a digit                     1    1    1    1   error
+
+G  gcc 11.4 (first diagnostic)            caught=23/24  line-exact=20/24  late=3  early=0
+D  ErrorBuddy, detection-point line       caught=24/24  line-exact=21/24  late=3  early=0
+E  ErrorBuddy, fix-point line (shipped)   caught=24/24  line-exact=24/24  late=0  early=0

@@ -1,0 +1,8 @@
+ErrorBuddy - compiling examples/empty.txt
+
+Error on line 1:
+The program is empty. There is nothing to compile.
+Suggestion: Write at least one statement, for example 'int x = 5;'.
+
+(Found during: Syntax Analysis)
+Compilation stopped. No intermediate code was generated.
