@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ErrorBuddy · Compiler Design Project</title>
+<meta name="description" content="ErrorBuddy: a beginner compiler in C++17 that explains its own errors. Lexer, recursive-descent parser, symbol table, three-address code and friendly error messages.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%2317191e%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%23ff7a6b%22 font-family=%22monospace%22%3E;%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #101318; --card: #1a1e25; --line: #2d333d; --ink: #ece8e1; --muted: #9aa2ad;
+  --coral: #f2775f; --green: #4cc38a; --amber: #e2b451; --blue: #7fa8f5;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace; --sans: "IBM Plex Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
+a { color: var(--blue); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+header { padding: 64px 0 40px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; align-items: center; }
+@media (max-width: 860px) { header { grid-template-columns: 1fr; padding-top: 40px; } }
+h1 { font: 600 clamp(44px, 7vw, 68px)/1 "Fraunces", Georgia, serif; margin: 0 0 16px; letter-spacing: -.02em; }
+h1 span, .c { color: var(--coral); }
+.lede { color: var(--muted); font-size: 19px; margin: 0 0 24px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-block; padding: 10px 16px; border-radius: 9px; text-decoration: none; font-weight: 500; font-size: 15px;
+       border: 1px solid var(--line); color: var(--ink); background: var(--card); }
+.btn.primary { background: var(--coral); border-color: var(--coral); color: #17191e; }
+.btn:hover { border-color: var(--coral); }
+pre, code { font-family: var(--mono); }
+.term { background: #0b0d10; border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14px; line-height: 1.6; margin: 0; overflow-x: auto; white-space: pre; }
+.g { color: var(--green); } .r { color: var(--coral); } .y { color: var(--amber); } .m { color: var(--muted); }
+section { padding: 36px 0; border-top: 1px solid var(--line); }
+h2 { font: 600 30px/1.2 "Fraunces", Georgia, serif; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 0 0 24px; max-width: 720px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.card b { display: block; margin-bottom: 4px; }
+.card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.num { font: 500 13px var(--mono); color: var(--coral); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.stat strong { display: block; font: 500 34px/1.1 var(--mono); color: var(--green); }
+.stat span { color: var(--muted); font-size: 14px; }
+.diagram { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+.diagram img { width: 100%; height: auto; display: block; max-height: 720px; object-fit: contain; }
+figcaption { color: var(--muted); font-size: 14px; margin: -4px 0 22px; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; }
+td code { color: var(--coral); }
+.scroll { overflow-x: auto; }
+footer { padding: 30px 0 50px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Error<span>Buddy</span></h1>
+      <p class="lede">A beginner compiler, written in C++17 with only the standard library, that explains its own errors: the right line, plain words, one concrete fix.</p>
+      <div class="btns">
+        <a class="btn primary" href="playground.html">Open the playground</a>
+        <a class="btn" href="ErrorBuddy_Final_Report.pdf">Final report (PDF)</a>
+        <a class="btn" href="ErrorBuddy_Complete.pdf">Presentation (PDF)</a>
+        <a class="btn" href="https://github.com/Vardanp1/Compiler-Design-Project">Source on GitHub</a>
+      </div>
+    </div>
+<pre class="term"><span class="g">$</span> ./errorbuddy missing_semicolon.txt
+
+<span class="r">Error on line 2:</span>
+Expected ';' at the end of the statement.
+<span class="y">Suggestion:</span> Add a semicolon after '10'.
+
+<span class="m">(Found during: Syntax Analysis)</span></pre>
+  </header>
+
+  <section>
+    <h2>The problem</h2>
+    <p class="sub">A beginner forgets one semicolon on line 2. gcc reports <code>program.c:3:5: error: expected ',' or ';' before 'printf'</code>: the wrong line, grammar words, and no fix. ErrorBuddy reports line 2, says what rule was broken in plain English, and gives one concrete thing to type.</p>
+    <div class="stats">
+      <div class="stat"><strong>5</strong><span>compiler phases</span></div>
+      <div class="stat"><strong>~730</strong><span>lines of C++ in 3 source files</span></div>
+      <div class="stat"><strong>10/10</strong><span>example programs pass <code>make test</code></span></div>
+      <div class="stat"><strong>24/24</strong><span>case-study mistakes reported on the fix line (gcc: 20)</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="sub">Source text goes through five phases. Phases 2 to 4 run together in one pass of the parser (syntax-directed translation). Any phase can throw a <code>CompileError { line, phase, message, suggestion }</code>; the driver prints it and no intermediate code is shown.</p>
+    <div class="grid">
+      <div class="card"><span class="num">1 · lexer.cpp</span><b>Lexical analysis</b><p>Hand-written scanner. Tokens carry their line number. Rejects <code>@</code>, <code>2nd</code> and numbers above INT_MAX.</p></div>
+      <div class="card"><span class="num">2 · parser.cpp</span><b>Syntax analysis</b><p>Recursive descent, one function per grammar rule. Precedence and left-associativity come from the grammar.</p></div>
+      <div class="card"><span class="num">3 · parser.cpp</span><b>Semantic analysis</b><p>Symbol table of names, declaration lines and values: undeclared, redeclared, self-use, division by zero, overflow.</p></div>
+      <div class="card"><span class="num">4 · parser.cpp</span><b>Three-address code</b><p>At most one operator per instruction, temporaries t1, t2… that never clash with user names.</p></div>
+      <div class="card"><span class="num">5 · all phases</span><b>Friendly errors</b><p>Looks at nearby tokens to name the cause, and uses edit distance for "Did you mean…?" hints.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The language</h2>
+    <p class="sub">A small C-like language, kept small on purpose so every phase is complete. Every variable is an <code>int</code> with a starting value; <code>+ - * /</code> with precedence and parentheses; <code>print</code>; <code>//</code> comments. Compilation stops at the first error.</p>
+<pre class="term"><span class="m">// examples/valid.txt</span>
+int age = 20;
+int score = 10;
+score = score + age * 2;
+int bonus = (score - 5) / 5;
+print score;
+print bonus * (age + 1);</pre>
+  </section>
+
+  <section>
+    <h2>Architecture</h2>
+    <p class="sub">Diagrams generated from the Mermaid sources in <code>architecture/</code>.</p>
+    <figure style="margin:0"><div class="diagram"><img src="architecture/1_full_architecture.svg" alt="Full architecture and execution flow of ErrorBuddy" loading="lazy"></div>
+      <figcaption>1. Full architecture: build, ways to run, the five phases and who reads the output.</figcaption></figure>
+    <figure style="margin:0"><div class="diagram"><img src="architecture/2_parser_internals.svg" alt="Parser internals: where each error is thrown" loading="lazy"></div>
+      <figcaption>2. Inside the parser: every place a CompileError can be thrown.</figcaption></figure>
+    <figure style="margin:0"><div class="diagram"><img src="architecture/3_cli_sequence.svg" alt="Sequence diagram of one command-line compile" loading="lazy"></div>
+      <figcaption>3. One compile from the terminal, end to end.</figcaption></figure>
+    <figure style="margin:0"><div class="diagram"><img src="architecture/4_web_sequence.svg" alt="Sequence diagram of the web playground" loading="lazy"></div>
+      <figcaption>4. The local web playground (web/server.py), which compiles anything you type. The playground on this site shows the recorded output of the same compiler for every example program.</figcaption></figure>
+  </section>
+
+  <section>
+    <h2>Files</h2>
+    <div class="scroll"><table>
+      <tr><th>File</th><th>Role</th></tr>
+      <tr><td><code>main.cpp</code></td><td>Driver: reads the file, runs the phases, prints TAC, symbol table and phase summary or the error; exit code 0, 1, 2 or 3.</td></tr>
+      <tr><td><code>lexer.h / lexer.cpp</code></td><td>Phase 1: Token, TokenType, tokenize(). Also defines CompileError.</td></tr>
+      <tr><td><code>parser.h / parser.cpp</code></td><td>Phases 2–4 in one pass, plus the diagnosis helpers and typo hints.</td></tr>
+      <tr><td><code>examples/</code></td><td>10 test programs and their expected output.</td></tr>
+      <tr><td><code>web/</code></td><td>Local playground: server.py runs the real binary and returns JSON.</td></tr>
+      <tr><td><code>case_study/</code></td><td>24-mistake corpus and the ErrorBuddy vs gcc study.</td></tr>
+      <tr><td><code>site/</code></td><td>This GitHub Pages site and its playground.</td></tr>
+      <tr><td><code>ci/</code></td><td>Optional GitHub Actions workflow that also compiles the C++ to WebAssembly for live in-browser compiling.</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Run it yourself</h2>
+<pre class="term"><span class="g">$</span> git clone https://github.com/Vardanp1/Compiler-Design-Project.git
+<span class="g">$</span> cd Compiler-Design-Project
+<span class="g">$</span> make                              <span class="m"># g++ -std=c++17</span>
+<span class="g">$</span> ./errorbuddy examples/valid.txt --tokens
+<span class="g">$</span> make test                         <span class="m"># 10 examples vs expected output</span>
+<span class="g">$</span> make web                          <span class="m"># http://localhost:8795</span>
+<span class="g">$</span> python3 case_study/run_study.py   <span class="m"># ErrorBuddy vs gcc</span></pre>
+  </section>
+
+  <footer>
+    ErrorBuddy · Compiler Design Project · Vardan Pandya ·
+    <a href="https://github.com/Vardanp1/Compiler-Design-Project">github.com/Vardanp1/Compiler-Design-Project</a> ·
+    <a href="ErrorBuddy_Complete.pptx">slides (.pptx)</a>
+  </footer>
+</div>
+</body>
+</html>
