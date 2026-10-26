@@ -51,7 +51,7 @@ a { color: #2f5fd0; text-decoration: none; }
       <tr><td>Test status</td><td class="ok">10 of 10 example programs pass <code>make test</code></td></tr>
     </table>
   </div>
-  <div class="meta">Built from commit 2c3c6e3 of the repository. All listings, outputs and numbers in this report are generated from the project files by <code>report/build_report.py</code>.</div>
+  <div class="meta">Built from commit 7283089 of the repository. All listings, outputs and numbers in this report are generated from the project files by <code>report/build_report.py</code>.</div>
 </section>
 
 <section class="toc"><h2>Contents</h2><ol>
@@ -254,8 +254,8 @@ Phases completed:
 <ul><li><b>Local playground</b> (<code>make web</code>): <code>web/server.py</code> serves <code>web/index.html</code> and an endpoint <code>POST /api/compile</code>. It writes the source to a temporary file, runs the real <code>./errorbuddy --tokens</code> with a 5-second timeout and turns its text output into JSON (tokens, error, TAC, symbols, phases). The page recompiles about 350 ms after typing stops, highlights the error line, and shows how far the pipeline got.</li>
 <li><b>GitHub Pages</b> (<a href="https://vardanp1.github.io/Compiler-Design-Project/">https://vardanp1.github.io/Compiler-Design-Project/</a>): GitHub Pages serves only static files and cannot run the compiler binary. <code>site/build_site.py</code> builds the compiler, runs it on every example program with <code>--tokens</code>, and records the real output in <code>examples.json</code>. The site is published from the <code>gh-pages</code> branch and contains the project page, the playground (<a href="https://vardanp1.github.io/Compiler-Design-Project/playground.html">https://vardanp1.github.io/Compiler-Design-Project/playground.html</a>), the architecture diagrams, the presentation and this report. The playground uses the same page design as the local one and parses the recorded output with a JavaScript port of the server's parser, so every example shows exactly what the compiler prints. Compiling new code needs the local playground or the command line.</li></ul>
 <p>The repository also contains <code>ci/github-pages-wasm.yml</code>, an optional GitHub Actions workflow. On every push to <code>main</code> it builds the compiler natively and runs <code>make test</code>, compiles the same <code>main.cpp</code>, <code>lexer.cpp</code> and <code>parser.cpp</code> to WebAssembly with Emscripten, and deploys the site. With that build present, the playground writes the program into Emscripten's in-memory file system and calls the compiler's <code>main()</code> directly, so any program can be compiled in the browser without reimplementing compiler logic in JavaScript. Enabling it means moving the file to <code>.github/workflows/</code>, which requires a GitHub token with the <code>workflow</code> scope.</p>
-
-
+<figure><img class="shot" src="pages_screenshot.png" alt="The live GitHub Pages site"><figcaption>Figure 6. The live GitHub Pages site at https://vardanp1.github.io/Compiler-Design-Project/</figcaption></figure>
+<figure><img class="shot" src="playground_screenshot.png" alt="The WebAssembly playground on GitHub Pages"><figcaption>Figure 7. The playground on GitHub Pages, showing the recorded compiler output for an example program.</figcaption></figure>
 <figure><img src="../architecture/4_web_sequence.svg" alt="Web sequence"><figcaption>Figure 4. Sequence of a compile in the local web playground.</figcaption></figure>
 
 <h2 class="page">13. Testing</h2>
