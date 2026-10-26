@@ -134,7 +134,7 @@ a {{ color: #2f5fd0; text-decoration: none; }}
       <tr><td>Test status</td><td class="ok">{passed[1]} of {int(passed[1]) + int(passed[2])} example programs pass <code>make test</code></td></tr>
     </table>
   </div>
-  <div class="meta">Built from commit {commit or "(working tree)"} of the repository. All listings, outputs and numbers in this report are generated from the project files by <code>report/build_report.py</code>.</div>
+  <div class="meta">Built from the main branch of the repository. All listings, outputs and numbers in this report are generated from the project files by <code>report/build_report.py</code>.</div>
 </section>
 
 <section class="toc"><h2>Contents</h2><ol>
